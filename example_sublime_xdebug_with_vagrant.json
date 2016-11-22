@@ -1,0 +1,21 @@
+{
+	"folders":
+	[
+		{
+			"path": "/Users/Atomox/Sites/mySite"
+		}
+	],
+	"settings":
+	{
+		"xdebug":
+		{
+			"close_on_stop": true,
+			"path_mapping":
+			{
+				"/var/www/my_vagrant_path/docroot": "/Users/Atomox/Sites/mySite/docroot"
+			},
+			"super_globals": true,
+			"url": "http://local.mysite.com"
+		}
+	}
+}
