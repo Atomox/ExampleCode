@@ -16,7 +16,7 @@ Docker Toolbox installs some Docker tools, AND VirtualBox.
 Docker for Mac:
  - uses HyperKit *instead* of VirtualBox. It was introduced in Yosemite. For older OSX versions, use Docker Toolbox.
  - does not use docker-machine for provisioning, but manages it in the app itself.
- - (See more here)[https://docs.docker.com/docker-for-mac/docker-toolbox/#the-docker-for-mac-environment]
+ - [See more here](https://docs.docker.com/docker-for-mac/docker-toolbox/#the-docker-for-mac-environment)
 
 
 
@@ -32,7 +32,7 @@ e.g. /var/www => /mnt/...
 ## Running Docker
 ## Docker Client
 `docker` -- show all commands
-`docker pull [image name]` -- Pull   down from docker hub.
+`docker pull [image name]` -- Pull down from docker hub.
 `dock run [image name]` -- Run the image.
 `docker images` -- List all images.
 `docker ps` -- Show all running containers. (`docker ps -a` all, non-running)
@@ -65,7 +65,9 @@ Same as above, but `/var/www/` on the container links to the current directory w
 ```
 docker run -w "/var/www" node npm start
 ```
-Run node container, load up container inside /var/www, and run command npm start inside that directory upon startup.
+Run node container, load up container inside /var/www, and run command npm start inside that directory upon startup. Use `-d` to run as a daemon (background).
+
+
 
 
 ```
@@ -119,3 +121,39 @@ EXPOSE $PORT									// Set the main point as 3000 inside our container.
 ENTRYPOINT ["npm", "start"]		// When we spin up our container, run npm start.
 ```
 
+
+## Build a Custom Image
+
+```
+docker build -t (--tag) [username]/description .
+```
+Build your image from the dockerfile, with the  `-t` tag: `username/description`,
+`.` using the current directory. username is the DockerHub account ID.
+
+
+
+
+## Docker-Compose
+
+```
+Docker-compose.yml
+
+version: '2'
+
+
+```
+
+
+
+### Commands
+
+`docker-compose build`
+`docker-compose build [service]`
+`docker-compose up`
+`docker-compose down` -- Remove all containers
+`docker-compose down --rmi all --volumes` -- Remove all images, volumes and containers
+`docker-compose logs`
+`docker-compose ps`
+`docker-compose stop`
+`docker-compose start`
+`docker-compose remove`
