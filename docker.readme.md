@@ -123,22 +123,22 @@ Commands:
 ### Sample Dockerfile
 
 ```
-FROM node:latest							// Base this image off the latest node image.
+FROM node:latest              // Base this image off the latest node image.
 MAINTAINER Hi Dad
 
-ENV 		NODE_ENV=production		// Environment variable
-ENV 		PORT=3000							// Environment variable
+ENV     NODE_ENV=production   // Environment variable
+ENV     PORT=3000             // Environment variable
 
-COPY 		. /var/www						// Coppy current folder to /var/www within the container
-WORK 		/var/www							// change to working directory
+COPY    . /var/www            // Coppy current folder to /var/www within the container
+WORK    /var/www              // change to working directory
 
 VOLUME ["/var/www"]           // Mount this container's volume on the host file system.
 
-RUN 		npm installs					// Run npm install on our node application.
+RUN     npm installs          // Run npm install on our node application.
 
-EXPOSE $PORT									// Set the main point as 3000 inside our container.
+EXPOSE $PORT                  // Set the main point as 3000 inside our container.
 
-ENTRYPOINT ["npm", "start"]		// When we spin up our container, run npm start.
+ENTRYPOINT ["npm", "start"]   // When we spin up our container, run npm start.
 ```
 
 
@@ -177,35 +177,35 @@ Here is a Sample config:
 version: '2'
 
 nginx:
-		# Alpine version is a might lighter/smaller image than others.
-		# Use this whenever possible.
-    image: nginx:1.10.3-alpine
-    ports:
-        - "80:80"
+  # Alpine version is a much lighter/smaller image than others.
+  # Use this whenever possible.
+  image: nginx:1.10.3-alpine
+  ports:
+    - "80:80"
 
-    # This allows nginx container to talk to phpfpm container.
-    links:
-        - phpfpm
+  # This allows nginx container to talk to phpfpm container.
+  links:
+    - phpfpm
 
-    # Map physical files to the internal containers.
-    volumes:
-        # Internal code lives here
-        - ./public:/var/www/html
+  # Map physical files to the internal containers.
+  volumes:
+    # Internal code lives here
+    - ./public:/var/www/html
 
-        # Config
-        - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    # Config
+    - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
 
-        # External codebase
-        - ../alexa-d8/:/var/www/html/alexa-d8
+    # External codebase
+    - ../alexa-d8/:/var/www/html/alexa-d8
 
-        # Logs
-        - ./logs/nginx-error.log:/var/log/nginx/error.log
-        - ./logs/nginx-access.log:/var/log/nginx/access.log
+    # Logs
+    - ./logs/nginx-error.log:/var/log/nginx/error.log
+    - ./logs/nginx-access.log:/var/log/nginx/access.log
 
 phpfpm:
 
-		# We're building this, not using an existing image, since we have
-		# to run scripts to install php plugins afterwards.
+    # We're building this, not using an existing image, since we have
+    # to run scripts to install php plugins afterwards.
     container_name: phpfpm_extras
 
     # Build from the same directory where this file is.
@@ -251,8 +251,8 @@ mysql:
     MYSQL_PASSWORD: [some db password]
 
   volumes:
-  	# Store the database files externally, so we don't lose them every time
-  	# we spin up/stop this container.
+    # Store the database files externally, so we don't lose them every time
+    # we spin up/stop this container.
     - ./mysql-data:/var/lib/mysql:rw
 
     # @TODO: Store an external MySQL config.
@@ -291,8 +291,8 @@ If we need to confirm our containers are connected, we can log into a container 
  3. Look for the linked service, such as MySQL.
  4. When you specify the link, like `--link mysql`, then `mysql` is your host name, for whatever application should require it.
  5. `mysql -uroot -p -h [hostname specified in link] -P [port, if not 3306]`
- 		- If you have mysql client installed on the PHP container, you can run this command to confirm it can connect to the mysql container.
- 		- If not, `app-get install mysql-client` first.
+    - If you have mysql client installed on the PHP container, you can run this command to confirm it can connect to the mysql container.
+    - If not, `app-get install mysql-client` first.
 
 ### Publish MySQL Port to Outside World:
 
