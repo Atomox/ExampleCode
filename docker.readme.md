@@ -109,15 +109,15 @@ There are multiple way to get your code into a container, for use. Generally, yo
 
 Commands:
 
- `From`  -- Create an image from an existing image, like a node.js base. From there, we can build on top.
- `Maintainer`
- `Run`  -- Commands to run, like npm install.
- `copy`  -- Copy code inot the container, like our source code.
- `entrypoint` -- Commands to run when this container is started, like node app.js, or something else. Think what happens when you click an .exe file.
- `workdir`  -- What folder we should set at entry.
- `Expose` -- Expose a port (default port the container will run internally with).
- `env`  -- variables for the container.
- `Volume`  -- Define the volume, and how it's started on our host system.
+- `From`  -- Create an image from an existing image, like a node.js base. From there, we can build on top.
+- `Maintainer`
+- `Run`  -- Commands to run, like npm install.
+- `copy`  -- Copy code inot the container, like our source code.
+- `entrypoint` -- Commands to run when this container is started, like node app.js, or something else. Think what happens when you click an .exe file.
+- `workdir`  -- What folder we should set at entry.
+- `Expose` -- Expose a port (default port the container will run internally with).
+- `env`  -- variables for the container.
+- `Volume`  -- Define the volume, and how it's started on our host system.
 
 
 ### Sample Dockerfile
