@@ -268,17 +268,17 @@ Bring this up with the commands below, such as:
 
 ### Commands
 
-`docker-compose build`
-`docker-compose build [service]`
-`docker-compose up` -- Bring up the system. Use `-d` to run in daemon mode.
-`docker-compose down` -- Remove all containers
-`docker-compose down --rmi all --volumes` -- Remove all images, volumes and containers
-`docker-compose logs`
-`docker-compose ps`
-`docker-compose stop`
-`docker-compose start`
-`docker-compose restart` -- Use this after you make any changes to config, as you would with apache restart.
-`docker-compose remove`
+- `docker-compose build`
+- `docker-compose build [service]`
+- `docker-compose up` -- Bring up the system. Use `-d` to run in daemon mode.
+- `docker-compose down` -- Remove all containers
+- `docker-compose down --rmi all --volumes` -- Remove all images, volumes and containers
+- `docker-compose logs`
+- `docker-compose ps`
+- `docker-compose stop`
+- `docker-compose start`
+- `docker-compose restart` -- Use this after you make any changes to config, as you would with apache restart.
+- `docker-compose remove`
 
 
 ## Debugging
