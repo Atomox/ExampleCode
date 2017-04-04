@@ -39,15 +39,15 @@ e.g. /var/www => /mnt/...
 
 ## Running Docker
 ### Docker Client
-`docker` -- show all commands
-`docker pull [image name]` -- Pull down from docker hub.
-`dock run [image name]` -- Run the image.
-`docker images` -- List all images.
-`docker ps` -- Show all running containers. (`docker ps -a` all, non-running)
+- `docker` -- show all commands
+- `docker pull [image name]` -- Pull down from docker hub.
+- `dock run [image name]` -- Run the image.
+- `docker images` -- List all images.
+- `docker ps` -- Show all running containers. (`docker ps -a` all, non-running)
 
-`docker rmi [image id]` -- Remove image.
-`docker rm [container id]` -- Remove container.
-`docker rm -v [container id]` -- Remove the volume attached to this container.
+- `docker rmi [image id]` -- Remove image.
+- `docker rm [container id]` -- Remove container.
+- `docker rm -v [container id]` -- Remove the volume attached to this container.
 
 
 ### Run Commands
