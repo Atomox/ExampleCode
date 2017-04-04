@@ -3,10 +3,18 @@
 We're going to look at getting started with Docker on a Mac. Here are some key concepts, code and command snippits, etc.
 
 
-### Docker Types:
+## Docker Types:
 - Client: The containers we deploy live here.
 - Machine: The Virtual Machine that runs on a non-linux environment. E.G., in our dev environment, such as Mac or Windows.
 - Compose: This allows multiple containers to run at once, and talk to one another.
+
+
+In general, you'll make a system using **`docker-compose`**, composed of several `docker` **containers**.
+
+
+## Docker-Machine, Docker for Mac, and Docker Toolbox
+
+When building in linux, things will run natively. However, when building locally, like on Mac or Windows, you'll need a "Machine." For OSX, use Docer for Mac, if possible. You'll need this before you can start building.
 
 
 ### Docker Toolbox vs Docker for Mac:
@@ -30,7 +38,7 @@ e.g. /var/www => /mnt/...
 
 
 ## Running Docker
-## Docker Client
+### Docker Client
 `docker` -- show all commands
 `docker pull [image name]` -- Pull down from docker hub.
 `dock run [image name]` -- Run the image.
@@ -42,7 +50,7 @@ e.g. /var/www => /mnt/...
 `docker rm -v [container id]` -- Remove the volume attached to this container.
 
 
-## Run Commands
+### Run Commands
 
 ```
 docker run -p 80:88 [container]
@@ -68,20 +76,32 @@ docker run -w "/var/www" node npm start
 Run node container, load up container inside /var/www, and run command npm start inside that directory upon startup. Use `-d` to run as a daemon (background).
 
 
-
-
 ```
 docker inspect [container]
 ```
-Show a list of mounts, including where a container mount to inside the container, and where it's mounting from outside the container (in the native environment, like your Mac)
+Show a list of data, including ip address, mounts (including where a container mount to inside the container, and where it's mounting from outside the container [in the native environment, like your Mac]), etc.
 
 
 
-## Ways to get Source Code Into a Container
+```
+docker exec -it container_name /bin/bash
+```
+
+Connect to a container environment, where you can do internal things, like tail logs, conenct to mysql, checkout configuration lcoations, etc.
+
+
+
+
+### Ways to get Source Code Into a Container
+
+There are multiple way to get your code into a container, for use. Generally, you want to use default images whenever possible, and inject your code via a `volume`. This keeps things basic, untangled, and easy to upgrade.
+
 
 1. Link a folder to your local machine using a volume.
 
 2. Build a custom image
+
+
 
 
 ## Custom Container / Image
@@ -100,7 +120,7 @@ Commands:
  `Volume`  -- Define the volume, and how it's started on our host system.
 
 
-## Sample Dockerfile
+### Sample Dockerfile
 
 ```
 FROM node:latest							// Base this image off the latest node image.
@@ -122,7 +142,7 @@ ENTRYPOINT ["npm", "start"]		// When we spin up our container, run npm start.
 ```
 
 
-## Build a Custom Image
+### Build a Custom Image
 
 ```
 docker build -t (--tag) [username]/description .
@@ -135,25 +155,147 @@ Build your image from the dockerfile, with the  `-t` tag: `username/description`
 
 ## Docker-Compose
 
-```
-Docker-compose.yml
+Use Docker Compose to build a system of connected containers, with options to
+link between them. Simple up/down commands to bring up the entire system.
 
+As before, if images exist on docker-hub, you can use those. Otherwise,
+you must `build` first.
+
+
+Here is a Sample config:
+
+**Docker-compose.yml**
+```
+#
+# @TODO
+#
+#  This is a version 1 syntax, with a version: '2' tag at the top.
+#  Need to update to syntax 2 or 3.
+
+
+# Used unless verison 1.
 version: '2'
 
+nginx:
+		# Alpine version is a might lighter/smaller image than others.
+		# Use this whenever possible.
+    image: nginx:1.10.3-alpine
+    ports:
+        - "80:80"
+
+    # This allows nginx container to talk to phpfpm container.
+    links:
+        - phpfpm
+
+    # Map physical files to the internal containers.
+    volumes:
+        # Internal code lives here
+        - ./public:/var/www/html
+
+        # Config
+        - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+
+        # External codebase
+        - ../alexa-d8/:/var/www/html/alexa-d8
+
+        # Logs
+        - ./logs/nginx-error.log:/var/log/nginx/error.log
+        - ./logs/nginx-access.log:/var/log/nginx/access.log
+
+phpfpm:
+
+		# We're building this, not using an existing image, since we have
+		# to run scripts to install php plugins afterwards.
+    container_name: phpfpm_extras
+
+    # Build from the same directory where this file is.
+    build: .
+
+    # The docker file to build.
+    dockerfile: dockerfile-php
+
+    # PHP uses port 9000.
+    ports:
+        - "9000:9000"
+
+    # Map physical files/directories of config files and code to the machine
+    # from our host machine. This means it won't get lost on rebuild, but can be
+    # changed as needed, and controlled externally.
+    volumes:
+        # Internal code lives here
+        - ./public:/var/www/html
+
+        # External codebase
+        - ../alexa-d8/:/var/www/html/alexa-d8
+
+        # Conf file lives here.
+        - ./php/php-config.ini:/usr/local/etc/php/conf.d/php-config.ini
+
+    # Allow us to talk to the mysql container.
+    links:
+        - mysql
+
+mysql:
+  # MariaDB is a MySQL distro that's commonly used.
+  image: mariadb
+  ports:
+    - "3306:3006"
+
+  # Environment variables. At least include the root password.
+  # These others set up a second user, although they don't seem
+  # to work perfectly. Might need to set these manually in a build script.
+  environment:
+    MYSQL_ROOT_PASSWORD: admin
+    MYSQL_DATABASE: [some db name]
+    MYSQL_USER: [some db user]
+    MYSQL_PASSWORD: [some db password]
+
+  volumes:
+  	# Store the database files externally, so we don't lose them every time
+  	# we spin up/stop this container.
+    - ./mysql-data:/var/lib/mysql:rw
+
+    # @TODO: Store an external MySQL config.
+#    - ./mysql/conf.d:/etc/mysql/conf.d
 
 ```
 
+
+Bring this up with the commands below, such as:
+
+`docker-compose build`, then `docker-compose up -d`. 
 
 
 ### Commands
 
 `docker-compose build`
 `docker-compose build [service]`
-`docker-compose up`
+`docker-compose up` -- Bring up the system. Use `-d` to run in daemon mode.
 `docker-compose down` -- Remove all containers
 `docker-compose down --rmi all --volumes` -- Remove all images, volumes and containers
 `docker-compose logs`
 `docker-compose ps`
 `docker-compose stop`
 `docker-compose start`
+`docker-compose restart` -- Use this after you make any changes to config, as you would with apache restart.
 `docker-compose remove`
+
+
+## Debugging
+### Confirm MySQL Connection [link](https://severalnines.com/blog/mysql-docker-containers-understanding-basics)
+
+If we need to confirm our containers are connected, we can log into a container with a presumed link, and check that it exists:
+
+ 1. `docker exec -it [container_name] /bin/bash`
+ 2. `cat /etc/hosts`
+ 3. Look for the linked service, such as MySQL.
+ 4. When you specify the link, like `--link mysql`, then `mysql` is your host name, for whatever application should require it.
+ 5. `mysql -uroot -p -h [hostname specified in link] -P [port, if not 3306]`
+ 		- If you have mysql client installed on the PHP container, you can run this command to confirm it can connect to the mysql container.
+ 		- If not, `app-get install mysql-client` first.
+
+### Publish MySQL Port to Outside World:
+
+If you want to access this outside of the compose echosystem, such as using sequel pro, expose the port as follows.
+
+ - `--publish 6603:3306 mysql`
