@@ -205,6 +205,8 @@ curl -L https://github.com/docker/compose/releases/download/1.12.0/docker-compos
 - `sudo chown [user_name] /usr/local/bin/docker-compose`
 - Make docker-compose part of docker group: `sudo chgrp docker /usr/local/bin/docker-compose`
 - Add user to the docker group, to avoid sudo: `sudo usermod -aG docker user_name`
+  - These changes take affect only after you restart your shell.
+  - Using sudo may seem cool, but puts you in a world of pain. This step is important, especially for web servers which create files in your volumes (symlinks).
 
 
 
@@ -229,6 +231,8 @@ e.g. /var/www => /mnt/...
 
 # Running Docker
 ## Docker Client
+This is *not* Docker-Compose. Docker client is for single container management.
+
 - `docker` -- show all commands
 - `docker pull [image name]` -- Pull down from docker hub.
 - `dock run [image name]` -- Run the image.
@@ -472,6 +476,25 @@ Bring this up with the commands below, such as:
 
 
 # Debugging
+
+
+## Confirm docker service is running on Linux (Ubuntu):
+`sudo systemctl status docker`
+
+
+## "ERROR: Couldn't connect to Docker daemon at http+docker://localunixsocket - is it running?"
+
+This old gem is generally a permission issue. Did you use `sudo`? If so, you've gone down a dark path, and will have to use it from now on. :/
+
+Also, in Ubuntu (on Azure), I've found I have to use `sudo` for `docker-compose build` commands. After that, `up`-ing does not require it. However, this may be an artifact of a bad installation. Check `/var/lib/docker`, and see what the permissions look like. `./aufs` and `./containers` are both good things to note the permission of, as they can contain some of the build data.
+
+Remember, when you install docker for the first time, to add your user to the `docker` group, as docker is installed to root, and gets that group. If you do, you should not need to use sudo for docker-compose commands. See the install instructions for docker for more details and specific commands.
+
+
+## Corrupt Image zip files
+
+Sometimes the zip files of the downloade dimages can be corrupted. Try removing the images with: `docker image` to show images, then `docker rmi [image_name]` to remove the image. This will force it to redownload the next time you build or up.
+
 ## Confirm MySQL Connection [link](https://severalnines.com/blog/mysql-docker-containers-understanding-basics)
 
 If we need to confirm our containers are connected, we can log into a container with a presumed link, and check that it exists:
@@ -536,3 +559,12 @@ Switch to the directory with your POM file, and run:
 Other articles:
 
  - http://geekyplatypus.com/packaging-and-serving-your-java-application-with-docker/
+
+
+# Security
+Know the vulnerabilities of Docker:
+https://docs.docker.com/engine/security/security/#docker-daemon-attack-surface
+
+ - Docker uses Unix sockets instead of http sockets for communication, to enforce linux permissions, and avoid CSF Attacks. Using 127.0.0.1 exposes your systems to vulnerabilities.
+    - As a result, you should keep all your systems containerized in Docker, and not interact with the local machine for services, whenever possible.
+  - 
