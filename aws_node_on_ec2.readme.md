@@ -33,6 +33,16 @@ B. Get a Domain
 	Alias Target: (look in the list for your last record,i.e. www.yourdomain.com)
 	Routing Policy: Simple
 
+B.2 Get a Sub Domain
+
+1. A subdomain requires it's own `hosted zone`.
+2. In the right pane, enter the subdomain you want. Click create.
+3. Copy the name servers created. You'll need these to add to your master domain's config.
+4. Switch to you main domain (the new sub-domain's parent).
+5. Create a record Set. Zone name is your subdomain. Type is NS.
+6. Enter the DNs values you copied into the value field. Click create.
+7. Back in your subdomain's Hosted Zone, create an 'A' record pointing to you host server (where you serve your code from), as described in part B.
+8. That's it!
 
 C. Connect to Your Server
 
