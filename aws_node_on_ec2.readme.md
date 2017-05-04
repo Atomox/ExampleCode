@@ -21,17 +21,17 @@
 1. I purchased a new domain name (.com) on Route 53 (Amazon's Domain Service)
 2. Once ready, create a Hosted Zone. (Purchasing from Route 53 will do this automatically)
 3. Create a record Set (Type: A) inside a Hosted Zone.
-	Name: www (notice .yourdomain.com is appended to this) www should be the normal/primary record.
-	Type: A - IPv4
-	Alias: No
-	Value: your_static_ip_goes_here
-	Routing Policy: Simple
+	- Name: www (notice .yourdomain.com is appended to this) www should be the normal/primary record.
+	- Type: A - IPv4
+	- Alias: No
+	- Value: your_static_ip_goes_here
+	- Routing Policy: Simple
 4. Create a record set again, where name is blank (this is for yourdomain.com without a www). This will make sure we redirect to our last entry.
-	Name: (blank)
-	Type: A - IPv4
-	Alias: Yes
-	Alias Target: (look in the list for your last record,i.e. www.yourdomain.com)
-	Routing Policy: Simple
+ - Name: (blank)
+ - Type: A - IPv4
+ - Alias: Yes
+ - Alias Target: (look in the list for your last record,i.e. www.yourdomain.com)
+ - Routing Policy: Simple
 
 ### B.2 Get a Sub Domain
 
