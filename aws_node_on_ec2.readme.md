@@ -1,6 +1,6 @@
-Setup a Node instance on Amazon EC2.
+# Setup a Node instance on Amazon EC2.
 
-A. Get a Server
+## A. Get a Server
 
 1. Sign up for an account.
 2. Spin up an EC2 account. I selected the Ubuntu server, as I've mostly worked with that distro.
@@ -16,7 +16,7 @@ A. Get a Server
   HTTPS (port 443)  -- See above, but more securely.
 
 
-B. Get a Domain
+## B. Get a Domain
 
 1. I purchased a new domain name (.com) on Route 53 (Amazon's Domain Service)
 2. Once ready, create a Hosted Zone. (Purchasing from Route 53 will do this automatically)
@@ -33,7 +33,7 @@ B. Get a Domain
 	Alias Target: (look in the list for your last record,i.e. www.yourdomain.com)
 	Routing Policy: Simple
 
-B.2 Get a Sub Domain
+## B.2 Get a Sub Domain
 
 1. A subdomain requires it's own `hosted zone`.
 2. In the right pane, enter the subdomain you want. Click create.
@@ -44,7 +44,7 @@ B.2 Get a Sub Domain
 7. Back in your subdomain's Hosted Zone, create an 'A' record pointing to you host server (where you serve your code from), as described in part B.
 8. That's it!
 
-C. Connect to Your Server
+## C. Connect to Your Server
 
 http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html
 
@@ -56,7 +56,7 @@ http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html
 5. We're in! (if not, make sure you referenced your pem file, or that your ec2's security group setup port 22 properly)
 
 
-D. Setup Your Server / Code
+## D. Setup Your Server / Code
 
 1. Amazon serves web requests via port 80, but doesn't anyone but root to use ports < 1024. We need to forward 80 -> some cooler port that node can listen on.
 2. [This guy has some good ideas](https://gist.github.com/kentbrew/776580) on how to solve this.
@@ -72,7 +72,7 @@ post-down iptables-save > /etc/iptables.rules
 4. Now your node scripts can listen on port 8000, and standard web traffic will redirect to them.
 
 
-E. Add SSH Pub Key, and pull from GitHub
+## E. Add SSH Pub Key, and pull from GitHub
 
 1. Assuming you want to checkout your code from GitHub, we'll need to create a pubkey, and add it to your GitHub account.
 2. Generate a new pub key for your EC2 server: `ssh-keygen -t rsa`
@@ -84,7 +84,7 @@ E. Add SSH Pub Key, and pull from GitHub
 8. `node app.js` or `npm start` or however you did it.
 
 
-F. Keep it Up
+## F. Keep it Up
 
 1. Consider using the [forever module](https://www.npmjs.com/package/forever) to keep things running.
 2. `npm install forever -g`
