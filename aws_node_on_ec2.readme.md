@@ -1,4 +1,6 @@
-# Setup a Node instance on Amazon EC2.
+# Setup a Web Server on Amazon EC2.
+
+Here are the basic steps to set up a web server on AWS, using EC2 (server) and Route 53 (Domains / DNS). We'll use a simple Node.js Application when we get to the server portion, but you could do the same with a LAMP stack.
 
 ## A. Get a Server
 
@@ -35,13 +37,13 @@
 
 ### B.2 Get a Sub Domain
 
-1. A subdomain requires it's own `hosted zone`.
+1. A subdomain requires it's own `hosted zone`. In Route 53, click "Create Hosted Zone".
 2. In the right pane, enter the subdomain you want. Click create.
 3. Copy the name servers created. You'll need these to add to your master domain's config.
-4. Switch to you main domain (the new sub-domain's parent).
+4. Switch to you main domain's Hosted Zone (the new sub-domain's parent).
 5. Create a record Set. Zone name is your subdomain. Type is NS.
 6. Enter the DNs values you copied into the value field. Click create.
-7. Back in your subdomain's Hosted Zone, create an 'A' record pointing to you host server (where you serve your code from), as described in part B.
+7. Back in your subdomain's Hosted Zone, create an `'A' record` pointing to your host server (where you serve your code from), as described in part B.
 8. That's it!
 
 ## C. Connect to Your Server
