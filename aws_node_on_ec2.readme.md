@@ -6,14 +6,14 @@
 2. Spin up an EC2 account. I selected the Ubuntu server, as I've mostly worked with that distro.
 3. Make sure to create a PEM file when creating the server. You'll be prompted,
   and should do it right away. A PEM file is a security file you'll need locally when connecting to your server.
-  YOU CAN'T GET THIS AFTERWARDS, OR REDOWNLOAD IT ONCE CREATED.
+  **YOU CAN'T GET THIS AFTERWARDS, OR REDOWNLOAD IT ONCE CREATED.**
   Make sure to do this, and download it somewhere safe. We'll use this when ssh'ing to your server.
 4. Set an Elastic IP address for your account:
 	- in EC2, under Actions > Networking > Manage IP Addresses
 5. Make sure your security group accounts for the following ports:
-  SSH (port 22) -- You need this to remote into your server for setup.
-  HTTP (port 80), -- You need this to allow people to see your server from the web.
-  HTTPS (port 443)  -- See above, but more securely.
+  - SSH (port 22) -- You need this to remote into your server for setup.
+  - HTTP (port 80), -- You need this to allow people to see your server from the web.
+  - HTTPS (port 443)  -- See above, but more securely.
 
 
 ## B. Get a Domain
@@ -27,11 +27,11 @@
 	- Value: your_static_ip_goes_here
 	- Routing Policy: Simple
 4. Create a record set again, where name is blank (this is for yourdomain.com without a www). This will make sure we redirect to our last entry.
- - Name: (blank)
- - Type: A - IPv4
- - Alias: Yes
- - Alias Target: (look in the list for your last record,i.e. www.yourdomain.com)
- - Routing Policy: Simple
+	- Name: (blank)
+	- Type: A - IPv4
+	- Alias: Yes
+	- Alias Target: (look in the list for your last record,i.e. www.yourdomain.com)
+	- Routing Policy: Simple
 
 ### B.2 Get a Sub Domain
 
