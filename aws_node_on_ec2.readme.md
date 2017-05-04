@@ -11,9 +11,9 @@
 4. Set an Elastic IP address for your account:
 	- in EC2, under Actions > Networking > Manage IP Addresses
 5. Make sure your security group accounts for the following ports:
-  - SSH (port 22) -- You need this to remote into your server for setup.
-  - HTTP (port 80), -- You need this to allow people to see your server from the web.
-  - HTTPS (port 443)  -- See above, but more securely.
+	- SSH (port 22) -- You need this to remote into your server for setup.
+	- HTTP (port 80), -- You need this to allow people to see your server from the web.
+	- HTTPS (port 443)  -- See above, but more securely.
 
 
 ## B. Get a Domain
