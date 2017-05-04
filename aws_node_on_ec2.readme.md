@@ -33,7 +33,7 @@
 	Alias Target: (look in the list for your last record,i.e. www.yourdomain.com)
 	Routing Policy: Simple
 
-## B.2 Get a Sub Domain
+### B.2 Get a Sub Domain
 
 1. A subdomain requires it's own `hosted zone`.
 2. In the right pane, enter the subdomain you want. Click create.
