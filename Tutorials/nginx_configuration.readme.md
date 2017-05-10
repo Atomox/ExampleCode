@@ -37,7 +37,7 @@ In situations where you need to run a service on a port which is locked down, yo
 
 Nginx is fast, can handle a lot of connections, and is perfect as a load balancer. Using the `upstream` directive, we can also assign a group of servers,
 which nginx will forward requests to, based upon various rules we configure.
-It's streight forward, sits in the config, right along side our other virtual-host and port forwarding logic. In fact, it uses forwarding for servers as well as ports, using the `proxy-pass` directive inside of a `location` directive.
+It's straight forward, sits in the config, right along side our other virtual-host and port forwarding logic. In fact, it uses forwarding for servers as well as ports, using the `proxy-pass` directive inside of a `location` directive.
 
 We'll get into the specifics below.
 
@@ -51,9 +51,9 @@ Find below a general overview of a config file, followed by specific use-case co
 ### default.conf
 
 Possible locations:
-/etc/nginx/nginx.conf
-/usr/local/nginx/conf/nginx.conf
-/usr/local/etc/nginx/nginx.conf
+- `/etc/nginx/nginx.conf`
+- `/usr/local/nginx/conf/nginx.conf`
+- `/usr/local/etc/nginx/nginx.conf`
 
 ```
 
