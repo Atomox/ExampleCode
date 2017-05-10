@@ -31,7 +31,7 @@ Because everything is external, it's more adaptable for different use-cases, but
 
 Because of it's agnostic, light-weight structure, Nginx is often used as a reverse proxy in front of other services, or even as a load balancing layer, routing requests to multiple instances of a server.
 
-In situations where you need to run a service on a port which is locked down, you can set up a location of file type which forwards the request to another internal port. For example, in AWS, ports less than 128 are generally locked down, with exception of 80 and 443. So, when running a node server, you can setup on port 8000, then redirect all traffic on 80 to port 8000, without much time fighting with AWS's security rules.
+In situations where you need to run a service on a port which is locked down, you can set up a location of file type which forwards the request to another internal port. For example, in AWS, ports less than 1024 are generally locked down, with exception of 80 and 443. So, when running a node server, you can setup on port 8000, then redirect all traffic on 80 to port 8000, without much time fighting with AWS's security rules.
 
 ### Nginx as a Load Balancer
 
