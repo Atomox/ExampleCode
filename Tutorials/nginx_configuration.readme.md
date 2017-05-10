@@ -194,7 +194,7 @@ location /some/url/read/only {
 
 #### Don't use IF
 
-According to the coommunity, use IF directive (at your peril)[https://www.nginx.com/resources/wiki/start/topics/depth/ifisevil/].
+According to the coommunity, use IF directive [at your peril](https://www.nginx.com/resources/wiki/start/topics/depth/ifisevil/).
 
 
 ### Configure PHP Files
@@ -245,7 +245,7 @@ location /some/path {
 
 **Note** By default, the **connection will be closed if the proxied server does not transmit any data within 60 seconds**. This timeout can be increased with the proxy_read_timeout directive. Alternatively, the proxied server can be configured to periodically send WebSocket ping frames to reset the timeout and check if the connection is still alive.
 
-See the docs if you want to pass the upgrade headers from the request directly, (instead of forcing them)[http://nginx.org/en/docs/http/websocket.html].
+See the docs if you want to pass the upgrade headers from the request directly, [instead of forcing them](http://nginx.org/en/docs/http/websocket.html).
 
 
 ### Load Balancing
