@@ -69,7 +69,7 @@ http {
     # listen and server_name help nginx decide when this block is relevant,
     # and should be used by an incomming request:
 
-    # Ports we will listen on. Can also have ip an address.
+    # Ports we will listen on. Can also have an ip address.
     listen 80;
     listen 127.0.0.1:443 ssl;
 
@@ -84,8 +84,8 @@ http {
     # Where is my document root?
     root /var/www/html;
 
-    # What files should serve when we hit a directory,
-    # without a file?
+    # What files should we serve when we hit a directory,
+    # instead of a file?
     #
     # E.G. when we request: example.com/, or example.com/some/directory/
     index index.php index.html index.html;
@@ -118,6 +118,11 @@ http {
 
       server_name node.example.com;
 
+      #
+      # **Note**  See more detail on the following settings
+      # in the "web sockets" section further down.
+      #
+
       # Sample proxy-pass of a node-served subdomain.
       # Pass anything on that subdomain to our node server,
       # found at host: 192.168.2.3, on port 8000
@@ -125,28 +130,22 @@ http {
           # Pass to this host:port
           proxy_pass http://192.168.2.3:8000/;
 
-          # Set http version. 1.0 defaults, but: "Version 1.1 is recommended
-          # for use with keepalive connections and NTLM authentication,"
-          # according to the docs.
+          # Set http version.
           proxy_http_version 1.1;
 
           # Proxy_set_header [field] [value]
           # Make updates to the passed header, and pass them along
           # to the final destination.
 
-          # Upgrade the connection to allow for websocket use.
-          # From nginx docs: "since the “Upgrade” is a hop-by-hop header, it is not passed from a client to proxied server. With forward proxying, clients may use the CONNECT method to circumvent this issue. This does not work with reverse proxying however, since clients are not aware of any proxy servers, and special processing on a proxy server is required."
+          # Upgrade the connection header, forcing the server
+          # to allow for websocket use.
           proxy_set_header Upgrade $http_upgrade;
           proxy_set_header Connection 'upgrade';
 
-          # Enforce a host name, in case one was not set. From manual:
-          # "its value equals the server name in the “Host”
-          # request header field or the primary server name if this field
-          # is not present." Use $http_host for the original value,
-          # which could be empty. You could aso use the original port:
-          # $host:$proxy_port
+          # Enforce a host name, in case one was not set.
           proxy_set_header Host $host;
 
+          # Determine conditions when we ignore cache.
           proxy_cache_bypass $http_upgrade;
       }
   }
@@ -228,6 +227,10 @@ location /some/path {
   proxy_set_header Upgrade $http_upgrade;
   proxy_set_header Connection 'upgrade';
 
+  # In the $http_upgrade condition, we will not serve from cache at this level.
+  # From manual: 'If at least one value of the string parameters is
+  # not empty and is not equal to “0” then the response
+  # will not be taken from the cache.'
   proxy_cache_bypass $http_upgrade;
 }
 ```
