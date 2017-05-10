@@ -172,13 +172,19 @@ http {
 ```
 
 #### Restrict Location to GET requests only:
+`limit_except` will allow any combination of these:
+
+```GET, HEAD, POST, PUT, DELETE, MKCOL, COPY, MOVE, OPTIONS, PROPFIND, PROPPATCH, LOCK, UNLOCK, or PATCH.```
+
+*Note:* `GET` will always include `HEAD` as well.
+
 ```
 location /some/url/read/only {
 
   # All requests allow GET and HEAD requests.
-  limit_except GET HEAD {
+  limit_except GET {
     # This HOST Subnet is allowed full access.
-    allow 192.168.1.1/24;
+    allow 192.168.1.0/32;
 
     # Everyone else is denied.
     deny all;
