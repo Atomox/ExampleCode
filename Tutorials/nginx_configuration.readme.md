@@ -250,7 +250,7 @@ See the docs if you want to pass the upgrade headers from the request directly, 
 
 ### Load Balancing
 
-You can pre-define a set of like-servers which a use should be able to hit any one of, to the same result. Once defined, Nginx can use some method to route users to one of your pool of servers. You can do this for a single location, or the entire web directory, just like normal proxy-pass style we already talked about.
+You can pre-define a set of like-servers which a user should be able to hit any one of, to the same result. Once defined, Nginx will route users to any one of your pool of servers. You can do this for a single location, or the entire web directory, just like the normal proxy-pass style we already talked about.
 
 For example, say you have a blog that gets 99% of your traffic, located at: 
 `www.mydoghouse.net/blog`. You can load balance *just your /blog requests*, while all remaining stuff hits a normal server.
@@ -270,7 +270,7 @@ http {
   # In your server, setup a location directive with a proxy
   # to the name of your upstream, defined above.
   server {
-    location / {
+    location /blog {
       proxy_pass http://my_backend_name;
     }
   }
@@ -300,10 +300,21 @@ Each server get's it's own. Think of weight as a multiplier, so the closer to 0,
   }
 ```
 
+#### Least Connected
+Using `least_conn`, nginx will attempt not to overload a busy server. This is good when requests may take longer than expected.
+```
+  upstream my_weighted_upstream {
+    least_conn;
+    server proxy_server1.example.com;
+    server proxy_server2.example.com;
+    server proxy_server3.example.com;
+  }
+```
+
 #### Hashed by IP
 Send someone on an IP to the same server each time! Great when you wanna maintain sessions, and persist in a single environment.
 
-We'll has the user's IP, and always direct back to the same server. Mark a server as `down` in order to redirect assigned ip's to a new server.
+We'll hash the user's IP, and always direct back to the same server. Mark a server as `down` in order to redirect assigned ip's to a new server.
 
 ```
   upstream my_weighted_upstream {
@@ -317,10 +328,15 @@ We'll has the user's IP, and always direct back to the same server. Mark a serve
   }
 ```
 
+#### Combining Last-Connected, IP-Hash and Weights
+It is similarly possible to use weights with the least-connected and ip-hash load balancing in the recent versions of nginx.
+
+
 #### Max fail redirect
 If a server is hit x times with failure, we can tell nginx to mark this server
 as `down` for a specified timelimit. After that time expires, we'll mark it as back up, and try again.
 
+By default, this is enabled, but can be tweaked (or disabled) with the following syntax:
 ```
   upstream my_weighted_upstream {
 
@@ -333,6 +349,8 @@ as `down` for a specified timelimit. After that time expires, we'll mark it as b
     server proxy_server3.example.com;
   }
 ```
+*Note: Setting max_fails=0, this behavior will be disabled.*
+
 
 # Notes and debugging
 
