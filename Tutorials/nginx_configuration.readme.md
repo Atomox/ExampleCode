@@ -56,117 +56,108 @@ Possible locations:
 - `/usr/local/etc/nginx/nginx.conf`
 
 ```
-
-#
-### HTTP Context
-#
+# Http context. Does not repeat.
 http {
 
-  #
-  ### Server Conext
-  #
-	server {
+  # Server context, which can repeate multiple times.
+  server {
 
-		# Here, we can overwrite default http directives,
-		# as well as add some of our own:
+    # Here, we can overwrite default http directives,
+    # as well as add some of our own:
 
 
-		# The following directives help use decide when this block is relevant,
-		# and should be used by an incomming request:
+    # listen and server_name help nginx decide when this block is relevant,
+    # and should be used by an incomming request:
 
-			# Ports we will listen on. Can also have ip an address.
-	    listen 80;
-			listen 127.0.0.1:443 ssl;
+    # Ports we will listen on. Can also have ip an address.
+    listen 80;
+    listen 127.0.0.1:443 ssl;
 
-			# What's my name?!
-			# Use this if you are serving up multiple domains or subdomains.
-			#
-			# E.G:
-			# my.example.com
-			# example.com
-	    server_name example.com;
+    # What's my name?!
+    # Use this if you are serving up multiple domains or subdomains.
+    #
+    # E.G:
+    # my.example.com
+    # example.com
+    server_name example.com;
 
-	  #
-	  # Some other directives:
-	  #
+    # Where is my document root?
+    root /var/www/html;
 
-	    # Where is my document root?
-	    root /var/www/html;
+    # What files should serve when we hit a directory,
+    # without a file?
+    #
+    # E.G. when we request: example.com/, or example.com/some/directory/
+    index index.php index.html index.html;
 
-	    # What files should serve when we hit a directory,
-	    # without a file?
-			#
-	    # E.G. when we request: example.com/, or example.com/some/directory/
-	    index index.php index.html index.html;
+    # Where are our SSL certs located?
+    ssl_certificate /etc/nginx/ssl/nginx.crt;
+    ssl_certificate_key /etc/nginx/ssl/nginx.key;
 
-	    # Where are our SSL certs located?
-	    ssl_certificate /etc/nginx/ssl/nginx.crt;
-	    ssl_certificate_key /etc/nginx/ssl/nginx.key;
+    # Location of 404 page.
+    error_page 404 /404.html;
 
-	    # Location of 404 page.
-	    error_page 404 /404.html;
+    #
+    ### Location Context
+    #
+    # Format: location [some match modifier] [some location to match]
+    #
+    location \some\path\to\handle {
+      # Do special stuff for this directory,
+      # or even reverse proxy to another service.
+      # See second server block below for reverse proxy example.
 
-	    #
-	    ### Location Context
-	    #
-	    # Format: location [some match modifier] [some location to match]
-	    #
-	    location \some\path\to\handle {
-	    	# Do special stuff for this directory,
-	    	# or even reverse proxy to another service.
-	    	# See second server block below for reverse proxy example.
+      # Nest a location inside.
+      location some_match {
+        # another location block here.
+      }
+    }
+  }
+  server {
+      listen 80;
 
-	    	# Nest a location inside.
-	    	location some_match {
-	    		# another location block here.
-	    	}
-	    }
-	}
-	server {
-	    listen 80;
+      server_name node.example.com;
 
-	    server_name node.example.com;
+      # Sample proxy-pass of a node-served subdomain.
+      # Pass anything on that subdomain to our node server,
+      # found at host: 192.168.2.3, on port 8000
+      location / {
+          # Pass to this host:port
+          proxy_pass http://192.168.2.3:8000/;
 
-	    # Sample proxy-pass of a node-served subdomain.
-	    # Pass anything on that subdomain to our node server,
-	    # found at host: 192.168.2.3, on port 8000
-	    location / {
-	    	  # Pass to this host:port
-	        proxy_pass http://192.168.2.3:8000/;
+          # Set http version. 1.0 defaults, but: "Version 1.1 is recommended
+          # for use with keepalive connections and NTLM authentication,"
+          # according to the docs.
+          proxy_http_version 1.1;
 
-	        # Set http version. 1.0 defaults, but: "Version 1.1 is recommended
-	        # for use with keepalive connections and NTLM authentication,"
-	        # according to the docs.
-	        proxy_http_version 1.1;
+          # Proxy_set_header [field] [value]
+          # Make updates to the passed header, and pass them along
+          # to the final destination.
 
-	        # Proxy_set_header [field] [value]
-	        # Make updates to the passed header, and pass them along
-	        # to the final destination.
+          # Upgrade the connection to allow for websocket use.
+          # From nginx docs: "since the “Upgrade” is a hop-by-hop header, it is not passed from a client to proxied server. With forward proxying, clients may use the CONNECT method to circumvent this issue. This does not work with reverse proxying however, since clients are not aware of any proxy servers, and special processing on a proxy server is required."
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection 'upgrade';
 
-	        # Upgrade the connection to allow for websocket use.
-	        # From nginx docs: "since the “Upgrade” is a hop-by-hop header, it is not passed from a client to proxied server. With forward proxying, clients may use the CONNECT method to circumvent this issue. This does not work with reverse proxying however, since clients are not aware of any proxy servers, and special processing on a proxy server is required."
-	        proxy_set_header Upgrade $http_upgrade;
-	        proxy_set_header Connection 'upgrade';
+          # Enforce a host name, in case one was not set. From manual:
+          # "its value equals the server name in the “Host”
+          # request header field or the primary server name if this field
+          # is not present." Use $http_host for the original value,
+          # which could be empty. You could aso use the original port:
+          # $host:$proxy_port
+          proxy_set_header Host $host;
 
-	        # Enforce a host name, in case one was not set. From manual:
-	        # "its value equals the server name in the “Host”
-	        # request header field or the primary server name if this field
-	        # is not present." Use $http_host for the original value,
-	        # which could be empty. You could aso use the original port:
-	        # $host:$proxy_port
-	        proxy_set_header Host $host;
-
-	        proxy_cache_bypass $http_upgrade;
-	    }
-	}
+          proxy_cache_bypass $http_upgrade;
+      }
+  }
 }
 ```
 
 #### Mark a location as an alias to another path:
 ```
   location /some/location/alias/path {
-  	# Mark this as an alias to another, external,
-  	# location (like another server or docker container)
+    # Mark this as an alias to another, external,
+    # location (like another server or docker container)
     alias /some/other/path/;
   }
 ```
@@ -175,9 +166,9 @@ http {
 #### Mark a location as internal only:
 ```
   location /some/location/interal/use {
-  	# Mark this path as internally accessible only.
-  	# All other requests here get a 404.
-  	internal;
+    # Mark this path as internally accessible only.
+    # All other requests here get a 404.
+    internal;
   }
 ```
 
@@ -185,7 +176,7 @@ http {
 ```
 location /some/url/read/only {
 
-	# All requests allow GET and HEAD requests.
+  # All requests allow GET and HEAD requests.
   limit_except GET HEAD {
     # This HOST Subnet is allowed full access.
     allow 192.168.1.1/24;
@@ -219,8 +210,8 @@ In order to support forwarding and return websocket connections via a proxy, we 
 
 ```
 location /some/path {
-	# Pass to this host:port
-	proxy_pass http://192.168.2.3:8000/;
+  # Pass to this host:port
+  proxy_pass http://192.168.2.3:8000/;
 
   # Set http version. 1.0 defaults, but: "Version 1.1 is recommended
   # for use with keepalive connections and NTLM authentication,"
@@ -260,15 +251,15 @@ http {
   upstream my_upstream_name {
     server proxy_server1.example.com;
     server proxy_server2.example.com;
-  	server proxy_server3.example.com;
+    server proxy_server3.example.com;
   }
 
   # In your server, setup a location directive with a proxy
   # to the name of your upstream, defined above.
   server {
-  	location / {
-  		proxy_pass http://my_backend_name;
-  	}
+    location / {
+      proxy_pass http://my_backend_name;
+    }
   }
 }
 ```
@@ -281,7 +272,7 @@ http {
   upstream my_weighted_upstream {
     server proxy_server1.example.com weight=1;
     server proxy_server2.example.com weight=2;
-  	server proxy_server3.example.com weight=4;
+    server proxy_server3.example.com weight=4;
   }
 ```
 
@@ -294,13 +285,13 @@ We'll has the user's IP, and always direct back to the same server. Mark a serve
   # Define a weight for each server. Think of it as a multiplier,
   # so the closer to 0, the less traffic that server is passed.
   upstream my_weighted_upstream {
-	  ip_hash;
+    ip_hash;
 
     server proxy_server1.example.com;
     server proxy_server2.example.com;
 
     # This server marked as down, so anyone previously assigned here will be rerouted to an active server.
-  	server proxy_server3.example.com down;
+    server proxy_server3.example.com down;
   }
 ```
 
@@ -313,13 +304,13 @@ as `down` for a specified timelimit. After that time expires, we'll mark it as b
   # so the closer to 0, the less traffic that server is passed.
   upstream my_weighted_upstream {
 
-  	# After 5 failed attempts, this server will be marked down
-  	# for the next 20 seconds.
+    # After 5 failed attempts, this server will be marked down
+    # for the next 20 seconds.
     server proxy_server1.example.com max_fails=5 fail_timeout=20s;
 
     # These servers could have other directives, like weight.
     server proxy_server2.example.com;
-  	server proxy_server3.example.com;
+    server proxy_server3.example.com;
   }
 ```
 
