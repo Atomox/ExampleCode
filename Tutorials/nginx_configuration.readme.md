@@ -114,40 +114,40 @@ http {
     }
   }
   server {
-      listen 80;
+    listen 80;
 
-      server_name node.example.com;
+    server_name node.example.com;
 
-      #
-      # **Note**  See more detail on the following settings
-      # in the "web sockets" section further down.
-      #
+    #
+    # **Note**  See more detail on the following settings
+    # in the "web sockets" section further down.
+    #
 
-      # Sample proxy-pass of a node-served subdomain.
-      # Pass anything on that subdomain to our node server,
-      # found at host: 192.168.2.3, on port 8000
-      location / {
-          # Pass to this host:port
-          proxy_pass http://192.168.2.3:8000/;
+    # Sample proxy-pass of a node-served subdomain.
+    # Pass anything on that subdomain to our node server,
+    # found at host: 192.168.2.3, on port 8000
+    location / {
+      # Pass to this host:port
+      proxy_pass http://192.168.2.3:8000/;
 
-          # Set http version.
-          proxy_http_version 1.1;
+      # Set http version.
+      proxy_http_version 1.1;
 
-          # Proxy_set_header [field] [value]
-          # Make updates to the passed header, and pass them along
-          # to the final destination.
+      # Proxy_set_header [field] [value]
+      # Make updates to the passed header, and pass them along
+      # to the final destination.
 
-          # Upgrade the connection header, forcing the server
-          # to allow for websocket use.
-          proxy_set_header Upgrade $http_upgrade;
-          proxy_set_header Connection 'upgrade';
+      # Upgrade the connection header, forcing the server
+      # to allow for websocket use.
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection 'upgrade';
 
-          # Enforce a host name, in case one was not set.
-          proxy_set_header Host $host;
+      # Enforce a host name, in case one was not set.
+      proxy_set_header Host $host;
 
-          # Determine conditions when we ignore cache.
-          proxy_cache_bypass $http_upgrade;
-      }
+      # Determine conditions when we ignore cache.
+      proxy_cache_bypass $http_upgrade;
+    }
   }
 }
 ```
