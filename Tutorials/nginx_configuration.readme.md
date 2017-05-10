@@ -194,7 +194,7 @@ location /some/url/read/only {
 
 #### Don't use IF
 
-According to the coommunity, use IF directive [at your peril](https://www.nginx.com/resources/wiki/start/topics/depth/ifisevil/).
+According to the coommunity, use the `IF` directive [at your peril](https://www.nginx.com/resources/wiki/start/topics/depth/ifisevil/).
 
 
 ### Configure PHP Files
@@ -250,17 +250,21 @@ See the docs if you want to pass the upgrade headers from the request directly, 
 
 ### Load Balancing
 
-#### Basic, Round-Robin:
+You can pre-define a set of like-servers which a use should be able to hit any one of, to the same result. Once defined, Nginx can use some method to route users to one of your pool of servers. You can do this for a single location, or the entire web directory, just like normal proxy-pass style we already talked about.
+
+For example, say you have a blog that gets 99% of your traffic, located at: 
+`www.mydoghouse.net/blog`. You can load balance *just your /blog requests*, while all remaining stuff hits a normal server.
+
+The basic idea:
 ```
 http {
 
-  # Use upstream to define proxy servers, which you can reference in server
-  # or location blocks "to pass requests of a certain type to the
-  # pool of servers that have been defined." (according to Digital Ocean).
+  # Use upstream to define a group of identicle proxy servers,
+  # which you can reference in server or location blocks.
   upstream my_upstream_name {
-    server proxy_server1.example.com;
-    server proxy_server2.example.com;
-    server proxy_server3.example.com;
+    server server1.example.com;
+    server server2.example.com;
+    server server3.example.com;
   }
 
   # In your server, setup a location directive with a proxy
@@ -273,11 +277,22 @@ http {
 }
 ```
 
-#### Weight:
-
+#### Basic, Round-Robin:
+By default, nginx serves up load balanced servers round-robin:
 ```
-  # Define a weight for each server. Think of it as a multiplier,
-  # so the closer to 0, the less traffic that server is passed.
+http {
+  upstream my_upstream_name {
+    server proxy_server1.example.com;
+    server proxy_server2.example.com;
+    server proxy_server3.example.com;
+  }
+}
+```
+
+#### Weight:
+Alternatively, give more preference to specific servers using a weight.
+Each server get's it's own. Think of weight as a multiplier, so the closer to 0, the less traffic that server is passed.
+```
   upstream my_weighted_upstream {
     server proxy_server1.example.com weight=1;
     server proxy_server2.example.com weight=2;
@@ -291,8 +306,6 @@ Send someone on an IP to the same server each time! Great when you wanna maintai
 We'll has the user's IP, and always direct back to the same server. Mark a server as `down` in order to redirect assigned ip's to a new server.
 
 ```
-  # Define a weight for each server. Think of it as a multiplier,
-  # so the closer to 0, the less traffic that server is passed.
   upstream my_weighted_upstream {
     ip_hash;
 
@@ -309,8 +322,6 @@ If a server is hit x times with failure, we can tell nginx to mark this server
 as `down` for a specified timelimit. After that time expires, we'll mark it as back up, and try again.
 
 ```
-  # Define a weight for each server. Think of it as a multiplier,
-  # so the closer to 0, the less traffic that server is passed.
   upstream my_weighted_upstream {
 
     # After 5 failed attempts, this server will be marked down
