@@ -88,6 +88,9 @@ post-down iptables-save > /etc/iptables.rules
 
 ## F. Keep it Up
 
+### Persistant Node with Forever
 1. Consider using the [forever module](https://www.npmjs.com/package/forever) to keep things running.
 2. `npm install forever -g`
 3. `forever start app.js` or `git stop app.js`
+
+### Containerize with Docker.

@@ -193,11 +193,25 @@ Docker for Mac:
  - [See more here](https://docs.docker.com/docker-for-mac/docker-toolbox/#the-docker-for-mac-environment)
 
 
-## Ubuntu:
- You need to install docker-compose on Ubuntu.
+## Ubuntu: (Including AWS EC2)
 
+### Docker
+
+ You need to install docker-compose on Ubuntu. Follow the official instructions, found [here](https://docs.docker.com/engine/installation/linux/ubuntu/#install-using-the-repository)
+
+ Note: You need to expose a repository to apt-get before installing, or you wil get an older version, which might not understand version 2 compose syntax.
+
+
+### Docker-Compose
+
+Works on Azure (?):
 ```
 curl -L https://github.com/docker/compose/releases/download/1.12.0/docker-compose-$(uname -s)-$(uname -m) -o > /usr/local/bin/docker-compose
+```
+
+Works on AWS & Digital Ocean:
+```
+sudo curl -o /usr/local/bin/docker-compose -L "https://github.com/docker/compose/releases/download/1.12.0/docker-compose-$(uname -s)-$(uname -m)"
 ```
 
 - `sudo -i` (switch to root for next two commands, if they don't work by default)
@@ -207,7 +221,6 @@ curl -L https://github.com/docker/compose/releases/download/1.12.0/docker-compos
 - Add user to the docker group, to avoid sudo: `sudo usermod -aG docker user_name`
   - These changes take affect only after you restart your shell.
   - Using sudo may seem cool, but puts you in a world of pain. This step is important, especially for web servers which create files in your volumes (symlinks).
-
 
 
 # Docker Info & Commands
@@ -506,6 +519,16 @@ If we need to confirm our containers are connected, we can log into a container 
  5. `mysql -uroot -p -h [hostname specified in link] -P [port, if not 3306]`
     - If you have mysql client installed on the PHP container, you can run this command to confirm it can connect to the mysql container.
     - If not, `app-get install mysql-client` first.
+
+
+## Container `exit 0` when run
+
+Containers only run as long as there is a command running, of at least 1000ms. In order for the container to stay up, you need to be running that command in the foreground.
+
+For instance, when using the `forever` command for Node.js apps, you need to run it in foreground mode, not it's default background mode. When it runs in background mode, it runs the command, goes t the background, and the app exits.
+
+`forever app.js` instead of `forever start app.js` will solve this particular problem. Find similar solutions for other programs.
+
 
 
 ## Access MySQL via GUI in OSX.

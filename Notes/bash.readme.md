@@ -1,7 +1,6 @@
+Some Bash Basics
 
-
-
-## Install Stupp
+## Install Stuff
 
 ### apt-get
 
@@ -33,3 +32,48 @@ Show all members of a group:
 Show all users
 
 `cat /etc/passwd`
+
+
+### Symlinks
+
+Create or update a symlink:
+`ln -sf /path/to/file /path/to/symlink`
+
+
+### Hit an website
+
+Hit a website at port 80
+`curl [url]:80`
+
+
+### IP Routing
+
+Show all routing tables:
+`sudo iptables -t nat -L`
+
+Redirect all `tcp` requests on `port 80` to `port 8000`:
+`iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 8000`
+
+Delete line '1' from the `PREROUTING` chain, in the `nat` table.
+sudo iptables -t nat -D PREROUTING 1
+
+
+### Permissions:
+
+`chmod UGO file_or_path` - Change file permission, where xxx is 0-7 for User, Group, Other. -R for recursive, like an entire sub directory.
+
+`chown` - Change owning user
+
+`chgrp` - Change owning group
+
+
+### Grep
+
+Grep allows you to filter output to just the lines with your search term.
+`some_command | grep 'search term'`
+
+
+### Logs
+
+Tail logs (and follow them)
+`tail -f /path/to/log`
