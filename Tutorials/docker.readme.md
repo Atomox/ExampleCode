@@ -7,7 +7,7 @@ Docker is just like Vagrant, in that it is a virtual machine you can use to setu
 In linux, these containers run natively, making them more usable in PRODuction environments, as well as on you developer machine. Since OSX Yosemite, they even run more natively, and don't require VirtualBox or Parallels. That means, they should be less of a hog on your system.
 
 ## Running Containers
-You can also run single containers without talking to other systems, which can be good for 1-time calls, like compiling a Java application in Maven, or a 1-time SASS compile. While you can run multiple containers, and link them this way, it's dumb, messy, and each command is like a 500 character bash command. Instead, `Docker-Compose` has a format for a docker-compose.xml file, where you tell each container how to talk to one another.
+You can also run single containers without talking to other systems, which can be good for 1-time calls, like compiling a Java application in Maven, or a 1-time SASS compile. While you can run multiple containers, and link them this way, it's dumb, messy, and each command is like a 500 character bash command. Instead, `Docker-Compose` has a format for a docker-compose.yml file, where you tell each container how to talk to one another.
 
 In `docker-compose`, we define a single file, referencing each container we'll use in our system of containers, declare any volumes (symlinks) into the containers from our computer, and even network them together. Then, with one command: `docker-compose up`, we bring the entire system up.
 
@@ -17,12 +17,12 @@ When we reference the containers by host/ip address, we use the container name *
 ## Exposing ports
 Ports are how applications expose themselves to be reached by the outside world. This is a Linux/Operating Systems concept, not a Docker one. Docker just allows you to declair where your containers are looking for their ports. You can tell Docker which ports to expose inside of the container, as well as where to expose them *outside* the container. By default, you probably only wanna expose them inside the container, since all containers inside the same docker-compose system will know where these ports are. By not exposing the outside port number, your system will be more secure, although it is handy for local development, like when you want to connect to your MySQL container with Sequel Pro.
 
-## Docker-Compose.xml vs Dockerfile
-There are two (types of) files you need to know about: `dockerfile` (one per container) and `docker-compose.xml` (the file that networks/maps your containers together).
+## Docker-Compose.yml vs Dockerfile
+There are two (types of) files you need to know about: `dockerfile` (one per container) and `docker-compose.yml` (the file that networks/maps your containers together).
 
 Docker file is generally used when you're modifying an existing image, such as installing php, and adding plugins. If you're using an existing image, and not making changes, you won't need this (when using docker-compose).
 
-We have already discussed Docker-Compose.xml, and that will reference the dockerfiles of each container you use.
+We have already discussed Docker-Compose.yml, and that will reference the dockerfiles of each container you use.
 
 ## Building off an image
 You don't have to build your containers from scratch. `Docker-hub.com` is a good place to find existing builds, including official packaged for just about any software you can imagine.
@@ -72,9 +72,9 @@ This runs apt-get (an installer in Linux), and installs a bunch of PHP extension
 
 This is in YAML format, so indentation matters. However, the commands themselves are just BASH commands. `apt-get update` just updates the command's database, and you could run this in the shell of any system which has apt-get installed.
 
-This file is called `dockerfile-php`, but you can call it whatever you want, so long as your docker-compose.xml file references it properly.
+This file is called `dockerfile-php`, but you can call it whatever you want, so long as your docker-compose.yml file references it properly.
 
-## Docker-Compose.xml
+## Docker-Compose.yml
 
 ```
 
@@ -147,11 +147,11 @@ services:
 
 Some things to note:
 
-The `nginx` container builds directly from an image. Nothing custom (except ports and volumes), we it has no Dockerfile. The `phpfpm` container, does has a custom container, so we reference that file, and the build directory where it is located.
+The `nginx` container builds directly from an image. Nothing custom (except ports and volumes). It has no Dockerfile. The `phpfpm` container does has a custom container, so we reference that file, and the build directory where it is located.
 
 Remember: If you run commands to install new things, you need a dockerfile. If you just want to expose a port, or mount a file/directory into the container, you don't need a custom container.
 
-**All containers in the compose file can see eachother since Version 2** In version 1, a `-link` command was needed to tell the container what it could see. Now, a default network is set up internaly, and each container can reference the other via it's container name.
+**All containers in the compose file can see each other since Version 2** In version 1, a `-link` command was needed to tell the container what it could see. Now, a default network is set up internaly, and each container can reference the other via it's container name.
 
 
 ## Run this guy.
@@ -180,12 +180,12 @@ This tells it to run the `/bin/bash` command on the container. Packages without 
 ## MAC:
 ## Docker-Machine, Docker for Mac, and Docker Toolbox
 
-When building in linux, things will run natively. However, when building locally, like on Mac or Windows, you'll need a "Machine." For OSX, use Docer for Mac, if possible. You'll need this before you can start building.
+When building in linux, things will run natively. However, when building locally, like on Mac or Windows, you'll need a "Machine." For OSX, use `Docker for Mac`, if possible. You'll need this before you can start building.
 
 
 ### Docker Toolbox vs Docker for Mac:
 
-Docker Toolbox installs some Docker tools, AND VirtualBox.
+Docker Toolbox installs some Docker tools, *and* VirtualBox.
 
 Docker for Mac:
  - uses HyperKit *instead* of VirtualBox. It was introduced in Yosemite. For older OSX versions, use Docker Toolbox.
@@ -199,7 +199,7 @@ Docker for Mac:
 
  You need to install docker-compose on Ubuntu. Follow the official instructions, found [here](https://docs.docker.com/engine/installation/linux/ubuntu/#install-using-the-repository)
 
- Note: You need to expose a repository to apt-get before installing, or you wil get an older version, which might not understand version 2 compose syntax.
+ **Note: You need to expose a repository to apt-get before installing, or you will get an older version, which might not understand version 2 compose syntax.**
 
 
 ### Docker-Compose
@@ -251,7 +251,6 @@ This is *not* Docker-Compose. Docker client is for single container management.
 - `dock run [image name]` -- Run the image.
 - `docker images` -- List all images.
 - `docker ps` -- Show all running containers. (`docker ps -a` all, non-running)
-
 - `docker rmi [image id]` -- Remove image.
 - `docker rm [container id]` -- Remove container.
 - `docker rm -v [container id]` -- Remove the volume attached to this container.
@@ -289,7 +288,6 @@ docker inspect [container]
 Show a list of data, including ip address, mounts (including where a container mount to inside the container, and where it's mounting from outside the container [in the native environment, like your Mac]), etc.
 
 
-
 ```
 docker exec -it container_name /bin/bash
 ```
@@ -298,23 +296,17 @@ Connect to a container environment, where you can do internal things, like tail 
 
 
 
-
 ## Ways to get Source Code Into a Container
 
 There are multiple way to get your code into a container, for use. Generally, you want to use default images whenever possible, and inject your code via a `volume`. This keeps things basic, untangled, and easy to upgrade.
 
-
-1. Link a folder to your local machine using a volume.
-
-2. Build a custom image
+Older tutorials might have you COPY your code into the containter via the dockerfile, but this is generally bad form, except when you require some code as a part of a `build` process. Generally, we use volumes for any data which should persist outside of container, since killing a container *kills all it's contents*. You'll see this when dealing with databases, too.
 
 
+# Custom Container / Image using a `Dockerfile`
+When a default image won't cut it, or when you need to build on top of an existing image, you'll need to define your own dockerfile. Here, you'll run commands to configure and install more software onto your container, or even build one from scratch (likely when you're prepping a production build).
 
-
-# Custom Container / Image
-
-
-Commands:
+## Common Commands
 
 - `From`  -- Create an image from an existing image, like a node.js base. From there, we can build on top.
 - `Maintainer`
@@ -325,7 +317,6 @@ Commands:
 - `Expose` -- Expose a port (default port the container will run internally with).
 - `env`  -- variables for the container.
 - `Volume`  -- Define the volume, and how it's started on our host system.
-
 
 ## Sample Dockerfile
 
@@ -348,15 +339,7 @@ EXPOSE $PORT                  // Set the main point as 3000 inside our container
 ENTRYPOINT ["npm", "start"]   // When we spin up our container, run npm start.
 ```
 
-
-## Build a Custom Image
-
-```
-docker build -t (--tag) [username]/description .
-```
-Build your image from the dockerfile, with the  `-t` tag: `username/description`,
-`.` using the current directory. username is the DockerHub account ID.
-
+Once complete, use the build command, either in `docker` or `docker-compose`. You can also upload it to somewhere like Dockerhub, making the full image available, so you don't have to build it later.
 
 
 
@@ -384,15 +367,11 @@ Here is a Sample config:
 version: '2'
 
 nginx:
-  # Alpine version is a much lighter/smaller image than others.
-  # Use this whenever possible.
-  image: nginx:1.10.3-alpine
+  image: nginx:1.10.3
+
+  # Expose internally and externally over port 80.
   ports:
     - "80:80"
-
-  # This allows nginx container to talk to phpfpm container.
-  links:
-    - phpfpm
 
   # Map physical files to the internal containers.
   volumes:
@@ -403,11 +382,7 @@ nginx:
     - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
 
     # External codebase
-    - ../alexa-d8/:/var/www/html/alexa-d8
-
-    # Logs
-    - ./logs/nginx-error.log:/var/log/nginx/error.log
-    - ./logs/nginx-access.log:/var/log/nginx/access.log
+    - ../some-repo/:/var/www/html/some-repo
 
 phpfpm:
 
@@ -415,15 +390,14 @@ phpfpm:
     # to run scripts to install php plugins afterwards.
     container_name: phpfpm_extras
 
-    # Build from the same directory where this file is.
-    build: .
-
-    # The docker file to build.
-    dockerfile: dockerfile-php
+    # Build from the php directory, using the dockerfile-php file.
+    build:
+      context: ./php
+      dockerfile: dockerfile-php
 
     # PHP uses port 9000.
     ports:
-        - "9000:9000"
+        - 9000
 
     # Map physical files/directories of config files and code to the machine
     # from our host machine. This means it won't get lost on rebuild, but can be
@@ -433,26 +407,24 @@ phpfpm:
         - ./public:/var/www/html
 
         # External codebase
-        - ../alexa-d8/:/var/www/html/alexa-d8
+        - ../some-repo/:/var/www/html/some-repo
 
         # Conf file lives here.
         - ./php/php-config.ini:/usr/local/etc/php/conf.d/php-config.ini
 
-    # Allow us to talk to the mysql container.
-    links:
-        - mysql
-
 mysql:
   # MariaDB is a MySQL distro that's commonly used.
   image: mariadb
+
+  # Expose internally to port 3306.
   ports:
-    - "3306:3006"
+    - 3306
 
   # Environment variables. At least include the root password.
   # These others set up a second user, although they don't seem
   # to work perfectly. Might need to set these manually in a build script.
   environment:
-    MYSQL_ROOT_PASSWORD: admin
+    MYSQL_ROOT_PASSWORD: [some password used for root user in mysql]
     MYSQL_DATABASE: [some db name]
     MYSQL_USER: [some db user]
     MYSQL_PASSWORD: [some db password]
@@ -461,16 +433,12 @@ mysql:
     # Store the database files externally, so we don't lose them every time
     # we spin up/stop this container.
     - ./mysql-data:/var/lib/mysql:rw
-
-    # @TODO: Store an external MySQL config.
-#    - ./mysql/conf.d:/etc/mysql/conf.d
-
 ```
 
 
 Bring this up with the commands below, such as:
 
-`docker-compose build`, then `docker-compose up -d`. 
+`docker-compose build`, then `docker-compose up -d`.
 
 
 ## Commands
@@ -590,4 +558,8 @@ https://docs.docker.com/engine/security/security/#docker-daemon-attack-surface
 
  - Docker uses Unix sockets instead of http sockets for communication, to enforce linux permissions, and avoid CSF Attacks. Using 127.0.0.1 exposes your systems to vulnerabilities.
     - As a result, you should keep all your systems containerized in Docker, and not interact with the local machine for services, whenever possible.
-  - 
+
+
+# Optimization
+
+This tutorial is more of an "up and running" guide. It gets you going, but it's in no way an optimized configuration for a PROD environment.
