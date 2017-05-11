@@ -2,29 +2,39 @@
 
 ## The High-Level
 
-Docker is just like Vagrant, in that it is a virtual machine you can use to setup servers. Unlike Vagrant, Docker makes little packages (containers) around each major piece of the system, so they can be reused, and are independant of one another. So, instead of one package for the entire system, a LAMP stack would have Apache, PHP and MySQL in their own containers. We set up each separately, then use `docker-compose` to get them talking together. This is (mostly) easier, and maybe even more secure. Maybe.
+Docker is just like Vagrant, in that it is a virtual machine you can use to setup servers. Unlike Vagrant, Docker builds `containers` around each major piece of the system, so they can be *reused*. They are independant of one another. Instead of one package for an entire system, a LAMP stack would have Apache, PHP and MySQL in their own containers. We set up each separately, then use `docker-compose` to get them talking together.
 
-In linux, these containers run natively, making them more usable in PRODuction environments, as well as on your developer machine. Since OSX Yosemite, they even run more natively, and don't require VirtualBox or Parallels. That means, they should be less of a hog on your system.
+*In linux, these containers run natively,* making them more usable in Production environments, as well as on your developer machine. Since OSX Yosemite, they even run more natively, and don't require VirtualBox or Parallels. That means less demand on your system.
 
-## Running Containers
-You can also run single containers without talking to other systems, which can be good for 1-time calls, like compiling a Java application in Maven, or a 1-time SASS compile. While you can run multiple containers, and link them this way, it's dumb, messy, and each command is like a 500 character bash command. Instead, `Docker-Compose` has a format for a docker-compose.yml file, where you tell each container how to talk to one another.
 
-In `docker-compose`, we define a single file, referencing each container we'll use in our system of containers, declare any volumes (symlinks) into the containers from our computer, and even network them together. Then, with one command: `docker-compose up`, we bring the entire system up.
+## The Building Blocks: Containers, Images, and Volumes
+In Docker, we have some building blocks to create our system. An `image` is a **read only** set of files. They *can't be changed,* because they can be shared among multiple containers. However, they are the guts of the system. We use an image, and build on top. If we want to make changes, and install new things, we build a new image, using the old one as a foundation.
 
-## Exposing ports
-Ports are how applications expose themselves to be reached by the outside world. This is a Linux/Operating Systems concept, not a Docker one. Docker just allows you to declair where your containers are looking for their ports. You can tell Docker which ports to expose inside of the container, as well as where to expose them *outside* the container. By default, you probably only wanna expose them inside the container, since all containers inside the same docker-compose system will know where these ports are. By not exposing the outside port number, your system will be more secure, although it is handy for local development, like when you want to connect to your MySQL container with Sequel Pro.
+`Containers` hold an image, and allow read/write on top. So, we use a container, not really the image directly. When we destroy a container, the data is lost.
+
+Enter the `Volume`. This is a layer that can hold data, and persists even when a container is deleted. It can be shared across multipe containers. It is essentially a symlink between the container and a folder on your host machine (on your mac). You can use this to inject existing data into the container, as well as capture (and reload) data as a container creates it. So, when you have a database container, we use a volume to capture it's data directory, so the data is not wiped out every time we reload the container.
+
+
+## Running Containers Solo
+You can run containers by themselves, without talking to other systems. This can be good for 1-time calls, like compiling a Java application in Maven, or a 1-time SASS compile.
+
+While you can run multiple containers, and link them this way, it's dumb, messy, and each command is like a 500 character bash command. Instead, the docker-compose.yml file can tie your containers together.
+
 
 ## Docker-Compose.yml vs Dockerfile
-There are two (types of) files you need to know about: `dockerfile` (one per container) and `docker-compose.yml` (the file that networks/maps your containers together).
+Containers and Docker-Compose each have their own file. A `dockerfile` exists for each container, while a `docker-compose.yml` file only has one per system.
 
-Docker file is generally used when you're modifying an existing image, such as installing php, and adding plugins. If you're using an existing image, and not making changes, you won't need this (when using docker-compose).
+A `dockerfile` is generally used when you're modifying an existing image, such as installing php, and adding plugins. If you're using an existing image, and not making changes, you won't need this (when using docker-compose).
 
-We have already discussed Docker-Compose.yml, and that will reference the dockerfiles of each container you use.
+In `docker-compose`, we reference each container we'll use in our system. We can declare any volumes (symlinks from our computer), network them together, expose their ports, etc. Then, with one command: `docker-compose up`, we bring the entire system up.
 
-## Building off an image
+
+
+# Let's Build a System.
+## Building a Container from an image
 You don't have to build your containers from scratch. `Docker-hub.com` is a good place to find existing builds, including official packaged for just about any software you can imagine.
 
-`FROM php:fpm` tells Docker that you're taking the PHP version FPM, and building ontop of that. So, all the work done to get the FPM PHP image working is pre-built for you. Think of it as the foundation, ready-to-use. If you like what's there, you don't have to go any further. You can spin up the container without building it, or adding any commands.
+`FROM php:fpm` tells Docker that you're taking the PHP version FPM, and building on top of that. So, all the work done to get the FPM PHP image working is pre-built for you. Think of it as the foundation, ready-to-use. If you like what's there, you don't have to go any further. You can spin up the container without building it, or adding any commands.
 
 If you do want to build on top, add your commands to the docker file, and then build (compile) them to an image.
 
@@ -168,6 +178,12 @@ Often, when debugging, and administering the system, you may need command-line a
 This tells it to run the `/bin/bash` command on the container. Packages without bash may need to run: `docker exec -it [CONTAINER_NAME] /bin/sh` instead, to get a shell.
 
 
+## Notes on Exposing ports
+Ports are how applications expose themselves to be reached by the outside world. This is a Linux/Operating Systems concept, not a Docker one. Docker just allows you to declair where your containers are looking for their ports.
+
+You can tell Docker which ports to expose inside of the container, as well as where to expose them *outside* the container. By default, you probably only wanna expose them inside the container, since all containers inside the same docker-compose system will know where these ports are. *By not exposing the outside port number, your system will be more secure,* although it is handy for local development. One example would be allowing Sequel Pro to connect connect to your MySQL container.
+
+
 
 
 # Appendix
@@ -227,17 +243,6 @@ sudo curl -o /usr/local/bin/docker-compose -L "https://github.com/docker/compose
 - Compose: This allows multiple containers to run at once, and talk to one another.
 
 In general, you'll make a system using **`docker-compose`**, composed of several `docker` **containers**.
-
-
-
-## Container vs Image vs Volume
-An `image` is a **read only** set of files. They can't be changed, because they can be shared among multiple containers. A `Container` holds an image, and allows read/write on top. When a container is deleted, the data is lost. Enter the `Data Volume`. A `Volume` is a layer that can hold data, and persists even when a container is deleted. It can be shared across multipe containers. It is essentially a symlink between the container and a folder on your host machine (on your mac).
-
-Volumes are a symlink to the environment hosting in Docker. SO, it will be a mount point in linux's actual machine.
-
-e.g. /var/www => /mnt/...
-
-
 
 # Running Docker
 ## Docker Client
@@ -534,7 +539,7 @@ Remember, when you install docker for the first time, to add your user to the `d
 
 ## Corrupt Image zip files
 
-Sometimes the zip files of the downloade dimages can be corrupted. Try removing the images with: `docker image` to show images, then `docker rmi [image_name]` to remove the image. This will force it to redownload the next time you build or up.
+Sometimes the zip files of the downloaded images can be corrupted. Try removing the images with: `docker image` to show images, then `docker rmi [image_name]` to remove the image. This will force it to redownload the next time you build or up.
 
 ## Confirm MySQL Connection [link](https://severalnines.com/blog/mysql-docker-containers-understanding-basics)
 
@@ -568,6 +573,6 @@ https://docs.docker.com/engine/security/security/#docker-daemon-attack-surface
 
 
 
-# Optimization
+# Optimization & Best Practices
 
-This tutorial is more of an "up and running" guide. It gets you going, but it's in no way an optimized configuration for a PROD environment.
+This tutorial is more of an "up and running" guide. It gets you going, but it's in no way an optimized configuration for a PROD environment. Checkout [Docker's Best Practices](https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/) for some tips.
