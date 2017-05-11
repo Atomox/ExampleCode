@@ -369,10 +369,27 @@ By default, this is enabled, but can be tweaked (or disabled) with the following
 ```
 *Note: Setting max_fails=0, this behavior will be disabled.*
 
+#### Other directives
+
+`max_conns` Limit the number of connections to this server.
+`backup` This server will only be routed to when the normal servers are down.
+**note:** Other directives get into more detail, but are only available with a paid nginx subscription. These include: `route`, `resolve`, `service`, `slow_start`, and others.
+
 
 # Notes and debugging
 
 ## Nginx
+
+### Us `include` in your config files
+
+Within your main config, within the html block, you can use `include` statements to reference other files. So, it is recommended to break your site config up by domain.
+
+```
+http {
+  include /path/to/my_domain.conf
+}
+```
+
 
 ### Internal Redirect limit of 10
 From the docs:
