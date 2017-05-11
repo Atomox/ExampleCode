@@ -4,15 +4,12 @@
 
 Docker is just like Vagrant, in that it is a virtual machine you can use to setup servers. Unlike Vagrant, Docker makes little packages (containers) around each major piece of the system, so they can be reused, and are independant of one another. So, instead of one package for the entire system, a LAMP stack would have Apache, PHP and MySQL in their own containers. We set up each separately, then use `docker-compose` to get them talking together. This is (mostly) easier, and maybe even more secure. Maybe.
 
-In linux, these containers run natively, making them more usable in PRODuction environments, as well as on you developer machine. Since OSX Yosemite, they even run more natively, and don't require VirtualBox or Parallels. That means, they should be less of a hog on your system.
+In linux, these containers run natively, making them more usable in PRODuction environments, as well as on your developer machine. Since OSX Yosemite, they even run more natively, and don't require VirtualBox or Parallels. That means, they should be less of a hog on your system.
 
 ## Running Containers
 You can also run single containers without talking to other systems, which can be good for 1-time calls, like compiling a Java application in Maven, or a 1-time SASS compile. While you can run multiple containers, and link them this way, it's dumb, messy, and each command is like a 500 character bash command. Instead, `Docker-Compose` has a format for a docker-compose.yml file, where you tell each container how to talk to one another.
 
 In `docker-compose`, we define a single file, referencing each container we'll use in our system of containers, declare any volumes (symlinks) into the containers from our computer, and even network them together. Then, with one command: `docker-compose up`, we bring the entire system up.
-
-## Differences to note
-When we reference the containers by host/ip address, we use the container name *instead* of localhost. So, when your MySQL container is called `my_cool_mysql`, your PHP container would access it internally using: `my_cool_mysql` as the host. Externally, it would depend upon if you expose the port.
 
 ## Exposing ports
 Ports are how applications expose themselves to be reached by the outside world. This is a Linux/Operating Systems concept, not a Docker one. Docker just allows you to declair where your containers are looking for their ports. You can tell Docker which ports to expose inside of the container, as well as where to expose them *outside* the container. By default, you probably only wanna expose them inside the container, since all containers inside the same docker-compose system will know where these ports are. By not exposing the outside port number, your system will be more secure, although it is handy for local development, like when you want to connect to your MySQL container with Sequel Pro.
@@ -456,47 +453,12 @@ Bring this up with the commands below, such as:
 - `docker-compose remove`
 
 
-# Debugging
+
+# Common Configuration
 
 
-## Confirm docker service is running on Linux (Ubuntu):
-`sudo systemctl status docker`
-
-
-## "ERROR: Couldn't connect to Docker daemon at http+docker://localunixsocket - is it running?"
-
-This old gem is generally a permission issue. Did you use `sudo`? If so, you've gone down a dark path, and will have to use it from now on. :/
-
-Also, in Ubuntu (on Azure), I've found I have to use `sudo` for `docker-compose build` commands. After that, `up`-ing does not require it. However, this may be an artifact of a bad installation. Check `/var/lib/docker`, and see what the permissions look like. `./aufs` and `./containers` are both good things to note the permission of, as they can contain some of the build data.
-
-Remember, when you install docker for the first time, to add your user to the `docker` group, as docker is installed to root, and gets that group. If you do, you should not need to use sudo for docker-compose commands. See the install instructions for docker for more details and specific commands.
-
-
-## Corrupt Image zip files
-
-Sometimes the zip files of the downloade dimages can be corrupted. Try removing the images with: `docker image` to show images, then `docker rmi [image_name]` to remove the image. This will force it to redownload the next time you build or up.
-
-## Confirm MySQL Connection [link](https://severalnines.com/blog/mysql-docker-containers-understanding-basics)
-
-If we need to confirm our containers are connected, we can log into a container with a presumed link, and check that it exists:
-
- 1. `docker exec -it [container_name] /bin/bash`
- 2. `cat /etc/hosts`
- 3. Look for the linked service, such as MySQL.
- 4. When you specify the link, like `--link mysql`, then `mysql` is your host name, for whatever application should require it.
- 5. `mysql -uroot -p -h [hostname specified in link] -P [port, if not 3306]`
-    - If you have mysql client installed on the PHP container, you can run this command to confirm it can connect to the mysql container.
-    - If not, `app-get install mysql-client` first.
-
-
-## Container `exit 0` when run
-
-Containers only run as long as there is a command running, of at least 1000ms. In order for the container to stay up, you need to be running that command in the foreground.
-
-For instance, when using the `forever` command for Node.js apps, you need to run it in foreground mode, not it's default background mode. When it runs in background mode, it runs the command, goes t the background, and the app exits.
-
-`forever app.js` instead of `forever start app.js` will solve this particular problem. Find similar solutions for other programs.
-
+## Hostnames Inside Docker
+When we reference the containers by host/ip address, **we use the container name *instead* of localhost**. So, when your MySQL container is called `my_cool_mysql`, your PHP container would access it internally using: `my_cool_mysql` as the host. Externally, it would depend upon if you expose the port.
 
 
 ## Access MySQL via GUI in OSX.
@@ -552,12 +514,58 @@ Other articles:
  - http://geekyplatypus.com/packaging-and-serving-your-java-application-with-docker/
 
 
+
+
+# Debugging
+
+
+## Confirm docker service is running on Linux (Ubuntu):
+`sudo systemctl status docker`
+
+
+## "ERROR: Couldn't connect to Docker daemon at http+docker://localunixsocket - is it running?"
+
+This old gem is generally a permission issue. Did you use `sudo`? If so, you've gone down a dark path, and will have to use it from now on. :/
+
+Also, in Ubuntu (on Azure), I've found I have to use `sudo` for `docker-compose build` commands. After that, `up`-ing does not require it. However, this may be an artifact of a bad installation. Check `/var/lib/docker`, and see what the permissions look like. `./aufs` and `./containers` are both good things to note the permission of, as they can contain some of the build data.
+
+Remember, when you install docker for the first time, to add your user to the `docker` group, as docker is installed to root, and gets that group. If you do, you should not need to use sudo for docker-compose commands. See the install instructions for docker for more details and specific commands.
+
+
+## Corrupt Image zip files
+
+Sometimes the zip files of the downloade dimages can be corrupted. Try removing the images with: `docker image` to show images, then `docker rmi [image_name]` to remove the image. This will force it to redownload the next time you build or up.
+
+## Confirm MySQL Connection [link](https://severalnines.com/blog/mysql-docker-containers-understanding-basics)
+
+If we need to confirm our containers are connected, we can log into a container with a presumed link, and check that it exists:
+
+ 1. `docker exec -it [container_name] /bin/bash`
+ 2. `cat /etc/hosts`
+ 3. Look for the linked service, such as MySQL.
+ 4. When you specify the link, like `--link mysql`, then `mysql` is your host name, for whatever application should require it.
+ 5. `mysql -uroot -p -h [hostname specified in link] -P [port, if not 3306]`
+    - If you have mysql client installed on the PHP container, you can run this command to confirm it can connect to the mysql container.
+    - If not, `app-get install mysql-client` first.
+
+
+## Container `exit 0` when run
+
+Containers only run as long as there is a command running, of at least 1000ms. In order for the container to stay up, you need to be running that command in the foreground.
+
+For instance, when using the `forever` command for Node.js apps, you need to run it in foreground mode, not it's default background mode. When it runs in background mode, it runs the command, goes t the background, and the app exits.
+
+`forever app.js` instead of `forever start app.js` will solve this particular problem. Find similar solutions for other programs.
+
+
+
 # Security
 Know the vulnerabilities of Docker:
 https://docs.docker.com/engine/security/security/#docker-daemon-attack-surface
 
  - Docker uses Unix sockets instead of http sockets for communication, to enforce linux permissions, and avoid CSF Attacks. Using 127.0.0.1 exposes your systems to vulnerabilities.
     - As a result, you should keep all your systems containerized in Docker, and not interact with the local machine for services, whenever possible.
+
 
 
 # Optimization
