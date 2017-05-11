@@ -371,8 +371,9 @@ By default, this is enabled, but can be tweaked (or disabled) with the following
 
 #### Other directives
 
-`max_conns` Limit the number of connections to this server.
-`backup` This server will only be routed to when the normal servers are down.
+- `max_conns` Limit the number of connections to this server.
+- `backup` This server will only be routed to when the normal servers are down.
+
 **note:** Other directives get into more detail, but are only available with a paid nginx subscription. These include: `route`, `resolve`, `service`, `slow_start`, and others.
 
 
