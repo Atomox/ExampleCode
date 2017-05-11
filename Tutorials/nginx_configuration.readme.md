@@ -154,13 +154,19 @@ http {
 
 #### Add a location with a Regular Expression
 
-`location ~ \.php$ {`
+```
+location ~ \.php$ { }
+```
 `~` in the location means every thing following is a regex match. It's case sensitive.
 
-`location ~* \.php$ {`
+```
+location ~* \.php$ { }
+```
 This is the same, but case-insensitive.
 
-`location ^~ /blog/`
+```
+location ^~ /blog/ { }
+```
 This tells the regex to stop looking for more specific matches once this pattern has been matched.
 
 
