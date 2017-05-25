@@ -12,7 +12,7 @@ In Docker, we have some building blocks to create our system. An `image` is a **
 
 `Containers` hold an image, and allow read/write on top. So, we use a container, not really the image directly. When we destroy a container, the data is lost.
 
-Enter the `Volume`. This is a layer that can hold data, and persists even when a container is deleted. It can be shared across multipe containers. It is essentially a symlink between the container and a folder on your host machine (on your mac). You can use this to inject existing data into the container, as well as capture (and reload) data as a container creates it. So, when you have a database container, we use a volume to capture it's data directory, so the data is not wiped out every time we reload the container.
+Enter the `Volume`. This is a layer that can hold data, and persists even when a container is deleted. It can be shared across multipe containers. It is essentially a symlink between the container and a folder on your host machine (on your mac). You can use this to inject existing data into the container, as well as capture (and reload) data as a container creates it. So, when you have a database container, we use a volume to capture it's data directory. When we reload the container, this data is safe on the host machine, and it'll be available to the container when we reload.
 
 
 ## Running Containers Solo
@@ -22,7 +22,7 @@ While you can run multiple containers, and link them this way, it's dumb, messy,
 
 
 ## Docker-Compose.yml vs Dockerfile
-Containers and Docker-Compose each have their own file. A `dockerfile` exists for each container, while a `docker-compose.yml` file only has one per system.
+Containers and Docker-Compose each have their own file. A `dockerfile` exists for each container/image, while a `docker-compose.yml` file only has one per system.
 
 A `dockerfile` is generally used when you're modifying an existing image, such as installing php, and adding plugins. If you're using an existing image, and not making changes, you won't need this (when using docker-compose).
 
@@ -32,7 +32,7 @@ In `docker-compose`, we reference each container we'll use in our system. We can
 
 # Let's Build a System.
 ## Building a Container from an image
-You don't have to build your containers from scratch. `Docker-hub.com` is a good place to find existing builds, including official packaged for just about any software you can imagine.
+You don't have to build your containers from scratch. `Docker-hub.com` is a good place to find existing builds, including official packages for just about any software you can imagine.
 
 `FROM php:fpm` tells Docker that you're taking the PHP version FPM, and building on top of that. So, all the work done to get the FPM PHP image working is pre-built for you. Think of it as the foundation, ready-to-use. If you like what's there, you don't have to go any further. You can spin up the container without building it, or adding any commands.
 
