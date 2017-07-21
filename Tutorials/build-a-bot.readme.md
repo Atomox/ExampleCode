@@ -45,7 +45,7 @@ Pretty straight forward. Enable your app inside one of your teams.
 
 ## Authenticate your App Server with Slack
 
-Before we get to coding our app, we need to ahndle Slack's oAuth for validating our app server. This means we need an endpoint to accept the oAuth request:
+Before we get to coding our app, we need to handle Slack's oAuth for validating our app server. This means we need an endpoint to accept the oAuth request:
 
 1. Click `OAuth & Permissions` in the api.Slack admin panel for your app.
 2. Add `Redirect URLs`, and endpoint where Slack will hit in order to authenticate with your app's server. Save that.

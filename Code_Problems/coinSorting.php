@@ -19,10 +19,6 @@ if ($m > 0 && $n > 0) {
   // Print all results.
   // echo "\n\n\n\n" . 'Results: ' . "\n\n"
   //   . print_r($ways, TRUE);
-
-  if (count($ways) > 0) {
-    $ways = implodePermutations($ways);
-  }
 }
 
 // Print all results.
@@ -50,7 +46,11 @@ function getWays($n, $c){
 
     //echo "\n\n" . ' --> ' . 'Reduction ' . $i . ': ' . coinHash($red) . "\n\n";
 
-    $results = appendArray($results, factorSet($red, $c, $coin_hash));
+    $temp = factorSet($red, $c, $coin_hash);
+
+    $temp = implodePermutations($temp);
+
+    $results = mergeArray($results, $temp);
 
     //echo "\n\n" . ' --> ' . 'Reduction ' . $i . ': factored ' . "\n\n";
 
@@ -308,6 +308,17 @@ function appendArray($a, $b) {
 
   // Append b to a.
   foreach ($b as $val) { $a[] = $val; }
+  return $a;
+}
+
+
+function mergeArray($a, $b) {
+  // Enforce arrays.
+  if (!is_array($a)) { $a = array($a); }
+  if (!is_array($b)) { $b = array($b); }
+
+  foreach ($b as $bk => $val) { $a[$bk] = $val; }
+
   return $a;
 }
 
