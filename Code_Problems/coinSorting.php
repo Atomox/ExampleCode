@@ -17,13 +17,9 @@ if ($m > 0 && $n > 0) {
   $ways = getWays($n, $c);
 
   // Print all results.
-  // echo "\n\n\n\n" . 'Results: ' . "\n\n"
-  //   . print_r($ways, TRUE);
+  echo "\n\n\n" . 'Results: ' . "\n\n"
+    . print_r($ways, TRUE);
 }
-
-// Print all results.
-// echo "\n\n\n\n" . 'Normalized Results: ' . "\n\n"
-//  . print_r($ways, TRUE);
 
 echo trim(count($ways));
 
@@ -39,16 +35,14 @@ function getWays($n, $c){
   $results = [];
 
   for ($i = 0; $i < count($c); $i++) {
-    //echo ' > Processing Coin Set: ' . $subset_hash . '...' . "\n\n";
+    echo ' > Processing Coin Set: ' . $subset_hash . '...' . "\n\n";
 
     // Can we reduce this coin to the next smallest one?
     $red = reduction($n, $subset, $subset_hash);
 
-    //echo "\n\n" . ' --> ' . 'Reduction ' . $i . ': ' . coinHash($red) . "\n\n";
+    echo "\n\n" . ' --> ' . 'Reduction ' . $i . ': ' . coinHash($red) . "\n\n";
 
     $temp = factorSet($red, $c, $coin_hash);
-
-    $temp = implodePermutations($temp);
 
     $results = mergeArray($results, $temp);
 
@@ -64,8 +58,6 @@ function getWays($n, $c){
   return $results;
 }
 
-$factored_coins = array();
-
 
 function factorSet ($set, $coins, $coin_hash) {
 
@@ -77,14 +69,9 @@ function factorSet ($set, $coins, $coin_hash) {
   $prev = null;
 
   foreach ($set AS $n) {
-//    echo "\n" . ' ~ ~ ~ ~ ITERATE ~ ' . $n . ' ~ ~ ~ ~ ~' . "\n";
     // Get the factor set of n.
     $solutions[] = factor($n, $coins, $coin_hash);
   }
-
-//  echo "\n" . ' ~ ~ ~ ~ ~ ~ ~ BEFORE PERMUTATE ~' . "\n";
-
-//  echo "\n\n" . print_r($solutions, TRUE);
 
   foreach ($solutions AS $i => $data) {
     if ($prev !== null) {
@@ -94,13 +81,6 @@ function factorSet ($set, $coins, $coin_hash) {
       $prev = $solutions[$i];
     }
   }
-
-//  echo "\n" . ' ~ ~ ~ ~ ~ ~ ~ AFTER PERMUTATE ~' . "\n";
-
-//  echo "\n\n" . print_r($prev, TRUE);
-
-//  echo ' ~ ~ ~ ~ ~ E N D ~ S E T ~ ~ ~ ~' . "\n";
-
 
   return $prev;
 }
@@ -114,6 +94,7 @@ function factor($n, $c, $coin_hash) {
 
   global $factored_coins;
   $results = [];
+  $single_coin = TRUE;
 
   // 1. Did we already calculate this reduction?
   if (isset($factored_coins[$n])) {
@@ -122,11 +103,10 @@ function factor($n, $c, $coin_hash) {
 
   // 2. Is this number a coin denomination already? Include it.
   //    Then remove it from working coins.
-  if (isset($c[$n])) { $results[] = [$c[$n]]; }
+  if (isset($c[$n])) { $results[] = $c[$n]; }
 
   // 3. Using only previous coins, get a reduction. (Don't include coin n if it was a coin)
   $reduction = reduction($n, $c, $coin_hash, FALSE);
-
 
   // If we had a reduction, include it.
   if ($reduction !== FALSE) {
@@ -140,24 +120,31 @@ function factor($n, $c, $coin_hash) {
       }
     }
 
+    $single_coin = FALSE;
+
     // Now, go through each again, and combine all permutations.
     $prev = null;
     foreach ($reduction AS $i) {
-      if ($prev !== null) {
-        $prev = permutate($prev, $factored_coins[$i]);
-      }
-      else {
-        $prev = $factored_coins[$i];
-      }
+      $prev = ($prev !== null)
+        ? permutate($prev, $factored_coins[$i])
+        : $factored_coins[$i];
     }
 
+//    echo 'f: ' . $n . ': ' . $i . ' -- Prev Final: ' . print_r($prev, TRUE);
+//    echo 'f: ' . $n . ': ' . $i . ' -- Results Before Merge: ' . print_r($results, TRUE);
     $results = appendArray($results, $prev);
   }
 
-  if (!empty($results)) {
+
+  if (!empty($results) ) {
     // By now, we should be completely factored.
+    if ($single_coin) {
+//      $results = implodePermutations($results);
+    }
     $factored_coins[$n] = $results;
   }
+
+//  echo 'f: ' . $n . ': ' . print_r($results, TRUE) . "\n\n\n";
 
   return $results;
 }
@@ -244,48 +231,23 @@ function maxDenomination ($n, $coins, $coin_hash, $include_single = TRUE) {
 function permutate($a, $b) {
 
   global $permutate_table;
-//  echo "\n\n\n\n" . '< Permutate >' . "\n";
-//  echo ' ~  ~  ~  ~  ~  ~  ~  ~  ~  ~' . "\n\n";
 
-  $a_str = [];
-  $b_str = [];
   $results = [];
-
-  foreach($b AS $j) {
-    if (!is_array($j)) { $j = [$j]; }
-    $b_hash = coinHash($j);
-    $b_str[$b_hash] = $b_hash;
-  }
 
   // Convert to string first.
   // Arrays are ill-performant.
   foreach($a AS $i) {
-    if (!is_array($i)) { $i = [$i]; }
-    $a_hash = coinHash($i);
 
     // If this is not a doup.
-    if (!isset($a_str[$a_hash])) {
-      foreach ($b_str AS $b_key => $j) {
-        $tmp = $a_hash . '-' . $j;
-        $tmp = explode('-', $tmp);
-        asort($tmp);
-        $results[] = $tmp;
-      }
-    }
-
-    $a_str[$a_hash] = $a_hash;
-  }
-
-/**
-  foreach($a_str AS $i) {
-    foreach($b_str AS $j) {
+    foreach ($b AS $j) {
       $tmp = $i . '-' . $j;
       $tmp = explode('-', $tmp);
       asort($tmp);
+      $tmp = coinHash($tmp);
+
       $results[] = $tmp;
     }
   }
-*/
 
   return $results;
 }
@@ -317,9 +279,11 @@ function mergeArray($a, $b) {
   if (!is_array($a)) { $a = array($a); }
   if (!is_array($b)) { $b = array($b); }
 
-  foreach ($b as $bk => $val) { $a[$bk] = $val; }
+  $tmp = [];
+  foreach ($a as $i) { $tmp[$i] = $i; }
+  foreach ($b as $j) { $tmp[$j] = $j; }
 
-  return $a;
+  return $tmp;
 }
 
 
@@ -330,6 +294,7 @@ function mergeArray($a, $b) {
  */
 function implodePermutations($p) {
   $final = [];
+
   foreach ($p AS $res) {
     $temp = implode($res, '-');
     $final[$temp] = $temp;
