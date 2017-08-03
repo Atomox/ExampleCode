@@ -1,68 +1,67 @@
-# Enter your code here. Read input from STDIN. Print output to STDOUT
+# Solution for Candy Problem.
+# @see https://www.hackerrank.com/challenges/candies/problem
+# author: atomox@gmail.com
 import sys
-
-count = sys.stdin.readline();
 grades = [];
 scores = {};
 
-for i in sys.stdin:
-  grades.append(long(i.rstrip()))
 
-def chunkScore (s):
+def chunkScore (a, b):
 
-  if len(s) == 1:
-    return [1]
+  if a >= b:
+    scores[a] = 1
+    return
 
-  s1 = s[:len(s)//2];
-  s2 = s[len(s)//2:];
+  # Divide and conquer.
+  middle = a + ((b-a) // 2)
+  chunkScore(a, middle)
+  chunkScore(middle + 1, b)
 
-  return mergeScore(s1, s2, chunkScore(s1), chunkScore(s2))
-
-
-def mergeScore (s1, s2, score1, score2):
-
-  if (s1[len(s1)-1] > s2[0] and score1[len(score1)-1] <= score2[0]):
-    score1 = scoreLeft(s1, s2, score1, score2)
-  elif (s1[len(s1)-1] < s2[0] and score1[len(score1)-1] >= score2[0]):
-    score2 = scoreRight(s1, s2, score1, score2)
-
-  return score1 + score2
+  # When we merge, determine which id needs to be scored.
+  if (grades[middle] > grades[middle+1] and scores[middle] <= scores[middle+1]):
+    scoreLeft(a, middle, middle+1, b)
+  elif (grades[middle] < grades[middle+1] and scores[middle] >= scores[middle+1]):
+    scoreRight(a, middle, middle+1, b)
 
 
-def scoreSet(s, sCompare, score, s_min):
+def scoreSet(a, b, y, z, is_backwards):
 
-  prev = 0
-  prev_old = 0
+  last = z
+  step = 1
 
-  for i in range(len(s)):
-    if i == 0:
-      if score[i] < s_min:
-        score[i] = s_min + 1
-      else:
-        score[i] = score[i] + 1
-    # Is it increasing? Is this only 1 greater than the last?
-    elif s[i] > s[i-1] and (score[i-1] - score[i]) <= 1:
-        score[i] = score[i-1] + 1
+  if is_backwards == True:
+      a,b = b,a
+      b = b - 1  # range(a,b) is actually a -> b-1
+      last = y
+      step = -1
+  else:
+      b = b + 1  # range(a,b) is actually a -> b-1
+
+  for i in range(a,b, step):
+    if i == a:
+        scores[i] = max(scores[last] + 1, scores[i] + 1)
+    elif grades[i] > grades[last]:
+        scores[i] = max(scores[last] + 1, scores[i])
     else:
         break
 
-  return score
+    last = i
 
 
-def scoreRight(s1, s2, score1, score2):
-    s_min = score1[len(score1)-1]
-    # Flip s1, so we can always check the same index for comparison scores.
-    s1 = s1[::-1]
-    return scoreSet(s2, s1, score2, s_min)
+def scoreRight(a, b, y, z):
+    scoreSet(y, z, a, b, False)
 
-def scoreLeft(s1, s2, score1, score2):
-    # When scoring left, flip the array. Then flip back when complete.
-    s_min = score2[0]
-    score1 = score1[::-1]
-    s1 = s1[::-1]
-    score1 = scoreSet(s1, s2, score1, s_min)
-    score1 = score1[::-1]
 
-    return score1
+def scoreLeft(a, b, y, z):
+    score1 = scoreSet(a, b, y, z, True)
 
-print sum(chunkScore(grades))
+
+# Import scores, and initialize score chart.
+count = sys.stdin.readline();
+for i in sys.stdin:
+  grades.append(int(i.rstrip()))
+scores = [1] * len(grades)
+
+# Calculate the score. Then total it.
+chunkScore(0, len(grades)-1)
+print sum(scores)
