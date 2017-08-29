@@ -4,9 +4,17 @@
 - ACS is a web based tool, where ACM requires a server/client installation.
 - Adobe Prime is the connector between ACS and ACM
 
+## A word on Namespaces
 
-## Contact Info / Client List
-- Explorer, Profiles & Targets > Receipients > Training
+You can (and should) namespace your work. There will be existing namespaces for CORE, as well as samples and examples.
+  - Reserved Namespaces: xtk,nms,nl,ncm, (Adobe) -and- neo,cus (Examples)
+  - Namespaces are 3 characters are all lowercase, 3 letters.
+
+
+
+## Receipients -- Contact Info / Client List
+Find here: `Explorer, Profiles & Targets > Recipients > Training`
+
 - Custom Fields for view can be added with e4xml (ES 4 + XML)
   - example: [location/@city]+','+[location/@stateCode]
 
@@ -17,13 +25,8 @@
 
   - y/@z
 
-- Admin > Config > Data Schemas
-
-- Reserved Namespaces: xtk,nms,nl,ncm, (Adobe) -and- neo,cus (Examples)
-- Namespaces are 3 characters are all lowercase, 3 letters.
-
-
-
+- Profiles & Targets > Recipients >
+  - Right click a record in the top screen, and click "Mass Update Selected Fields". This allows you to modify one or more records, and update the value of a field.
 
 
 ## Data Schema
