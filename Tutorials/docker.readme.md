@@ -227,6 +227,12 @@ Works on AWS & Digital Ocean:
 sudo curl -o /usr/local/bin/docker-compose -L "https://github.com/docker/compose/releases/download/1.12.0/docker-compose-$(uname -s)-$(uname -m)"
 ```
 
+Problems with Above command?
+```
+Visit: https://docs.docker.com/compose/install/#install-compose
+```
+
+
 - `sudo -i` (switch to root for next two commands, if they don't work by default)
 - `sudo chmod +x /usr/local/bin/docker-compose`
 - `sudo chown [user_name] /usr/local/bin/docker-compose`

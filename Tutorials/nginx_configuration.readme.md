@@ -219,6 +219,15 @@ According to the coommunity, use the `IF` directive [at your peril](https://www.
 ```
   # Sample PHP forwarding php files to phpfpm on port 9000.
   location ~ \.php$ {
+
+      # Avoid script injection from files by ensuring it is a real file.
+      # Note: this only works if our nginx and php workers are on the
+      # same server.
+      # See:
+      #     https://nealpoole.com/blog/2011/04/setting-up-php-fastcgi-and-nginx-dont-trust-the-tutorials-check-your-configuration/
+      #     https://serverfault.com/questions/739170/what-does-try-files-do-in-this-nginx-configuration
+      try_files $uri =404;
+
       fastcgi_split_path_info ^(.+\.php)(/.+)$;
       fastcgi_pass phpfpm:9000;
       fastcgi_index index.php;
@@ -270,7 +279,7 @@ See the docs if you want to pass the upgrade headers from the request directly, 
 
 You can pre-define a set of like-servers which a user should be able to hit any one of, to the same result. Once defined, Nginx will route users to any one of your pool of servers. You can do this for a single location, or the entire web directory, just like the normal proxy-pass style we already talked about.
 
-For example, say you have a blog that gets 99% of your traffic, located at: 
+For example, say you have a blog that gets 99% of your traffic, located at:
 `www.mydoghouse.net/blog`. You can load balance *just your /blog requests*, while all remaining stuff hits a normal server.
 
 The basic idea:
