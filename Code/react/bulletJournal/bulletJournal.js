@@ -1,9 +1,9 @@
 // Bullet List React Man.
 //
 // v1
-// 1. List displaying items and icons for status/type
-// 2. Multiple lists
-// 3. Add items to lists
+// x. List displaying items and icons for status/type
+// x. Multiple lists
+// x. Add items to lists
 // 4. Update status of list items.
 // 5. Store lists in backend.
 //
@@ -53,22 +53,27 @@ class Form extends React.Component {
   state = {
     label: '',
     type: '',
+    lid: this.props.lid,
   }
-  render() {
 
-    console.log(this.props);
-    console.log(this.state);
-    
+  handleSubmit = (event) => {
+    event.preventDefault();
+    this.props.addItem(this.state);
+  };
+
+  render() {
     return (
 
       /* How do we know which item this is? */
-      <form onSubmit={this.props.addItem}>
+      <form onSubmit={this.handleSubmit}>
         <input type="text"
-          value={this.state.lists[this.props.id].form_state.type}
+          value={this.state.type}
+          onChange={(event) => this.setState({ type: event.target.value })}
           placeholder="Type"
           required />
         <input type="text"
-/*          value={this.state.lists[this.props.id].form_state.label} */
+          value={this.state.label}
+          onChange={(event) => this.setState({ label: event.target.value })}
           placeholder="Task"
           required />
         <button type="submit">Add</button>
@@ -83,7 +88,6 @@ class App extends React.Component {
   state = {
     lists: [
       { id: 1,
-        form_state: null,
         title: 'Lake Destiny',
         items: [
           { label: "get keys",
@@ -101,16 +105,15 @@ class App extends React.Component {
         ],
       },
       { id: 2,
-        form_state: null,
         title: 'Powerline Concert',
         items: [
-          { label: "get keys",
+          { label: "Give Max a choice",
             type: 'minor'
           },
-          { label: "get soup",
+          { label: "get mad",
             type: 'minor'
           },
-          { label: "heat soup",
+          { label: "Car Rolls Away",
             type: 'minor'
           },
           { label: "bond with Max",
@@ -121,24 +124,20 @@ class App extends React.Component {
     ]
   }
 
-  addNewItem = (event) => {
-    event.preventDefault();
-
-    // , listId, itemInfo
+  addNewItem = (data) => {
 
     this.setState(prevState => {
-      var lid = prevState.lists.findIndex((obj => obj.id == listId));
-      if (lid) {
-        console.log('Adding item to list at index: ', lid,'...', itemInfo);
+      var lid = prevState.lists.findIndex((obj => obj.id == data.lid));
+      if (lid >= 0) {
+        let deepState = Object.assign({}, this.state);
+        deepState.lists[lid].items = prevState.lists[lid].items.concat({
+            label: data.label,
+            type: data.type
+        });
+
       	return {
-          //
-          // @TODO
-          //
-          // lists[lid].items: prevState.lists[lid].items.concat(itemInfo),
+          lists: deepState.lists
         };
-      }
-      else {
-        console.warn('Could not find the list ID:', listId, ', in: ', prevState.lists);
       }
     });
   }
