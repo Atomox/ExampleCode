@@ -50,30 +50,49 @@ const BulletList = (props) =>  {
 
 
 class Form extends React.Component {
-  state = {
+  static initialState = (props) => ({
     label: '',
     type: '',
-    lid: this.props.lid,
-  }
+    lid: props.lid,
+  });
 
+  state = Form.initialState(this.props);
+
+  handleChange = (event) => {
+    switch (event.target.name) {
+      case 'type':
+        this.setState({ type: event.target.value })
+        break;
+      case 'label':
+        this.setState({ label: event.target.value })
+        break;
+    }
+  };
+
+  /* Add an item on submit. */
   handleSubmit = (event) => {
     event.preventDefault();
     this.props.addItem(this.state);
+    this.setState(Form.initialState(this.props));
   };
 
   render() {
     return (
-
-      /* How do we know which item this is? */
-      <form onSubmit={this.handleSubmit}>
+      /* Allow user to add an item to the list. */
+      <form onSubmit={ this.handleSubmit }>
+        <select value={ this.state.type }
+          onChange={ this.handleChange }
+          name="type" required>
+          <option value="normal">Normal</option>
+          <option value="major">Major</option>
+          <option value="migrated">Migrated</option>
+          <option value="done">Done</option>
+          <option value="scheduled">Scheduled</option> 
+        </select>
         <input type="text"
-          value={this.state.type}
-          onChange={(event) => this.setState({ type: event.target.value })}
-          placeholder="Type"
-          required />
-        <input type="text"
-          value={this.state.label}
-          onChange={(event) => this.setState({ label: event.target.value })}
+          name="label"
+          value={ this.state.label }
+          onChange={ this.handleChange }
           placeholder="Task"
           required />
         <button type="submit">Add</button>
@@ -135,7 +154,7 @@ class App extends React.Component {
             type: data.type
         });
 
-      	return {
+        return {
           lists: deepState.lists
         };
       }
