@@ -166,3 +166,31 @@ Add items (forms) to the menu system.
   </model>
 </navtree>
 ```
+
+
+## Partition Data
+
+Partition sections of data, so users with particular permissions will have access to only that subset of data, and treat that data as their entire set.
+
+1. Create a Folder For the Partition Root
+  - In order to setup a partition, you need a generic folder as the root.
+   - Go to root, right click > Add New Folder > Generic Folder
+   - You can also add various types of folders under the same menu, such as Database > Recipients, or Delivery Management > Delivery Templates
+
+### Access Management
+
+#### Operator Groups
+Find here: `Admin > Access Management > Operator Groups`
+
+2. Create an Operator Group
+  - Create a group, like a Linux/BASH group, for security.
+
+3. Add Operator Group to Your Root Folder
+  - Right click on your folder, click settings > security.
+  - Click the folder, and click Operator Groups.
+  - Select your group from step 2
+
+4. Add a Operator (user account)
+  - Give the a u/p, email for account recovery.
+  - Add their permissions within the group.
+    - Add Campaign Manager, Workflow Execution, Delivery Operators, and your security group.
