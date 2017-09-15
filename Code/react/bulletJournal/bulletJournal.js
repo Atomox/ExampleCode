@@ -12,23 +12,39 @@
 // 1. Multiple layout types (Day vs 7 days vs month)
 // 2. Change themes
 
+/*
+ * A list of list-item types, including font awesome classes for icons.
+ */
+const types = {
+  major: {
+    name: 'major',
+    class: 'fa fa-plus-square-o',
+  },
+  done: {
+    name: 'done',
+    class: 'fa fa-check',
+  },
+  migrated: {
+    name: 'migrated',
+    class: 'fa fa-angle-right',
+  },
+  scheduled: {
+    name: 'scheduled',
+    class: 'fa fa-angle-left',
+  },
+  normal: {
+    name: 'normal',
+    class: 'fa fa-minus-square-o',
+  }
+};
+
+const itemClassName = (status) => {
+  return (types[status])
+  	? types[status].class
+  	: types.normal.class;
+}
 
 const Item = (props) => {
-  const itemClassName = (status) => {
-    switch (status) {
-      case 'major':
-        return 'fa fa-plus-square-o';
-      case 'done':
-        return 'fa fa-check';
-      case 'migrated':
-        return 'fa fa-angle-right';
-      case 'scheduled':
-        return 'fa fa-angle-left';
-
-      default:
-        return 'fa fa-minus-square-o';
-    }
-  }
   return (
     <div className="item">
       <i className={itemClassName(props.type)}>{props.label}</i>
@@ -43,7 +59,7 @@ const BulletList = (props) =>  {
       <div className="">
         {props.items.map(items => <Item {...items} />)}
       </div>
-      <Form addItem={props.addItem} lid={props.id} />
+      <Form addItem={props.addItem} lid={props.id} types={props.types}/>
     </div>
   );
 }
@@ -83,12 +99,10 @@ class Form extends React.Component {
         <select value={ this.state.type }
           onChange={ this.handleChange }
           name="type" required>
-          <option value="normal">Normal</option>
-          <option value="major">Major</option>
-          <option value="migrated">Migrated</option>
-          <option value="done">Done</option>
-          <option value="scheduled">Scheduled</option> 
-        </select>
+          { Object.keys(this.props.types).map((key, i) => {
+              return <SelectOption {...this.props.types[key]} /> }
+          )}
+				</select>
         <input type="text"
           name="label"
           value={ this.state.label }
@@ -99,6 +113,14 @@ class Form extends React.Component {
       </form>
     );
   }
+}
+
+const SelectOption = (props) => {
+  return (
+    <option value={props.name}>
+      <i className={props.class}>{props.name}</i>
+    </option>
+  );
 }
 
 
@@ -164,7 +186,7 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        {this.state.lists.map(lists => <BulletList {...lists} addItem={this.addNewItem} />)}
+        {this.state.lists.map(lists => <BulletList {...lists} types={types} addItem={this.addNewItem} />)}
       </div>
     );
   }
