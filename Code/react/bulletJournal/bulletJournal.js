@@ -12,30 +12,14 @@
 // 1. Multiple layout types (Day vs 7 days vs month)
 // 2. Change themes
 
-/*
- * A list of list-item types, including font awesome classes for icons.
- */
+import ReactDOM from 'react-dom'
+
 const types = {
-  major: {
-    name: 'major',
-    class: 'fa fa-plus-square-o',
-  },
-  done: {
-    name: 'done',
-    class: 'fa fa-check',
-  },
-  migrated: {
-    name: 'migrated',
-    class: 'fa fa-angle-right',
-  },
-  scheduled: {
-    name: 'scheduled',
-    class: 'fa fa-angle-left',
-  },
-  normal: {
-    name: 'normal',
-    class: 'fa fa-minus-square-o',
-  }
+  major: { name: 'major', class: 'fa fa-plus-square-o' },
+  done: { name: 'done', class: 'fa fa-check' },
+  migrated: { name: 'migrated', class: 'fa fa-angle-right' },
+  scheduled: { name: 'scheduled', class: 'fa fa-angle-left' },
+  normal: { name: 'normal', class: 'fa fa-minus-square-o' }
 };
 
 const itemClassName = (status) => {
@@ -44,22 +28,52 @@ const itemClassName = (status) => {
   	: types.normal.class;
 }
 
-const Item = (props) => {
-  return (
-    <div className="item">
-      <i className={itemClassName(props.type)}>{props.label}</i>
-    </div>
-  );
+class Item extends React.Component {
+
+  handleClick = () => {
+    this.props.handleEdit(this.props, true);
+    console.log('submit');
+  }
+
+  handleSubmit = (event) => {
+  	event.preventDefault();
+    this.props.handleEdit(this.props, false);
+  }
+
+  componentDidUpdate() { }
+
+  render() {
+    if (this.props.edit && this.props.edit === true) {
+      return (
+        <i className={itemClassName(this.props.type)}>
+        <input type="text" className="edit"
+        	autoFocus
+        	value={this.props.label}
+          onBlur={this.handleSubmit}/></i>
+      );
+    }
+
+    return (
+      <div className="item">
+        <i className={itemClassName(this.props.type)}
+          onDoubleClick={this.handleClick}>{this.props.label}</i>
+      </div>
+    );
+  }
 }
 
 const BulletList = (props) =>  {
   return (
     <div className="List">
       <h3>{props.title}</h3>
-      <div className="">
-        {props.items.map(items => <Item {...items} />)}
-      </div>
       <Form addItem={props.addItem} lid={props.id} types={props.types}/>
+      <div className="">
+        {props.items.map(items =>
+        	<Item {...items}
+          	handleEdit={props.editItem}
+             lid={props.id}
+          	/>)}
+      </div>
     </div>
   );
 }
@@ -96,19 +110,19 @@ class Form extends React.Component {
     return (
       /* Allow user to add an item to the list. */
       <form onSubmit={ this.handleSubmit }>
-        <select value={ this.state.type }
-          onChange={ this.handleChange }
-          name="type" required>
-          { Object.keys(this.props.types).map((key, i) => {
-              return <SelectOption {...this.props.types[key]} /> }
-          )}
-				</select>
         <input type="text"
           name="label"
           value={ this.state.label }
           onChange={ this.handleChange }
           placeholder="Task"
           required />
+          <select value={ this.state.type }
+          onChange={ this.handleChange }
+          name="type" required>
+          { Object.keys(this.props.types).map((key, i) => {
+              return <SelectOption {...this.props.types[key]} /> }
+          )}
+				</select>
         <button type="submit">Add</button>
       </form>
     );
@@ -132,16 +146,20 @@ class App extends React.Component {
         title: 'Lake Destiny',
         items: [
           { label: "get keys",
-            type: 'minor'
+            type: 'minor',
+            id: 1
           },
           { label: "get soup",
-            type: 'minor'
+            type: 'minor',
+            id: 2
           },
           { label: "heat soup",
-            type: 'minor'
+            type: 'minor',
+            id: 3
           },
           { label: "bond with Max",
-            type: 'major'
+            type: 'major',
+            id: 4
           },
         ],
       },
@@ -149,20 +167,44 @@ class App extends React.Component {
         title: 'Powerline Concert',
         items: [
           { label: "Give Max a choice",
-            type: 'minor'
+            type: 'minor',
+            id: 1
           },
           { label: "get mad",
-            type: 'minor'
+            type: 'minor',
+            id: 2
           },
           { label: "Car Rolls Away",
-            type: 'minor'
+            type: 'minor',
+            id: 3
           },
           { label: "bond with Max",
-            type: 'major'
+            type: 'major',
+            id: 4
           },
         ],
       },
     ]
+  }
+
+  editItem = (data, toggleOn) => {
+    this.setState(prevState => {
+      let myList = prevState.lists.findIndex((obj => obj.id == data.lid));
+      let myNewState = prevState;
+
+      console.log(prevState.lists[myList].items);
+
+      if (prevState.lists[myList]) {
+         myNewState.lists[myList].items = prevState.lists[myList].items.map(function(obj) {
+          obj.edit = (obj.id === data.id && toggleOn === true) ? true : false;
+          return obj;
+        });
+      }
+
+      return {
+      	lists: myNewState.lists
+      };
+    });
   }
 
   addNewItem = (data) => {
@@ -186,7 +228,12 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        {this.state.lists.map(lists => <BulletList {...lists} types={types} addItem={this.addNewItem} />)}
+        {this.state.lists.map(lists =>
+            <BulletList {...lists} types={types}
+              addItem={this.addNewItem}
+              editItem={this.editItem} />
+          )
+        }
       </div>
     );
   }
