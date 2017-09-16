@@ -4,8 +4,10 @@
 // x. List displaying items and icons for status/type
 // x. Multiple lists
 // x. Add items to lists
-// 4. Update status of list items.
-// 5. Store lists in backend.
+// x. Update status of list items.
+// 5. Delete item option.
+// 6. Toggle complete status.
+// 7. Store lists in backend.
 //
 //
 // v2
@@ -24,8 +26,8 @@ const types = {
 
 const itemClassName = (status) => {
   return (types[status])
-  	? types[status].class
-  	: types.normal.class;
+    ? types[status].class
+    : types.normal.class;
 }
 
 class Item extends React.Component {
@@ -41,10 +43,20 @@ class Item extends React.Component {
     this.setState({label: event.target.value});
   }
 
+  handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      console.log('enter key submit');
+      this.handleSubmit(event);
+    }
+  }
+
   handleSubmit = (event) => {
-  	event.preventDefault();
-    console.log(this.state);
-    this.props.handleEdit(this.props, false);
+    event.preventDefault();
+    let myProps = JSON.parse(JSON.stringify(this.props));
+    console.log('Before: ', myProps);
+    myProps.label = this.state.label;
+    console.log('After: ', myProps);
+    this.props.handleEdit(myProps, false, true);
   }
 
   componentDidUpdate() { }
@@ -54,10 +66,11 @@ class Item extends React.Component {
       return (
         <i className={itemClassName(this.props.type)}>
         <input type="text" className="edit"
-        	autoFocus
-        	value={this.state.label}
-          onChange={handleChange}
-          onBlur={this.handleSubmit}/></i>
+          autoFocus
+          value={this.state.label}
+          onChange={this.handleChange}
+          onBlur={this.handleSubmit} 
+          onKeyPress={this.handleKeyPress} /></i>
       );
     }
 
@@ -77,10 +90,10 @@ const BulletList = (props) =>  {
       <Form addItem={props.addItem} lid={props.id} types={props.types}/>
       <div className="">
         {props.items.map(items =>
-        	<Item {...items}
-          	handleEdit={props.editItem}
+          <Item {...items}
+            handleEdit={props.editItem}
              lid={props.id}
-          	/>)}
+            />)}
       </div>
     </div>
   );
@@ -130,7 +143,7 @@ class Form extends React.Component {
           { Object.keys(this.props.types).map((key, i) => {
               return <SelectOption {...this.props.types[key]} /> }
           )}
-				</select>
+        </select>
         <button type="submit">Add</button>
       </form>
     );
@@ -195,20 +208,24 @@ class App extends React.Component {
     ]
   }
 
-  editItem = (data, toggleOn) => {
+  editItem = (data, toggleOn, update) => {
     this.setState(prevState => {
+      console.log(data);
       let myList = prevState.lists.findIndex((obj => obj.id == data.lid));
       let myNewState = prevState;
 
       if (prevState.lists[myList]) {
          myNewState.lists[myList].items = prevState.lists[myList].items.map(function(obj) {
           obj.edit = (obj.id === data.id && toggleOn === true) ? true : false;
+          if (obj.id === data.id && update === true) {
+            obj.label = data.label;
+          }
           return obj;
         });
       }
 
       return {
-      	lists: myNewState.lists
+        lists: myNewState.lists
       };
     });
   }
