@@ -5,8 +5,8 @@
 // x. Multiple lists
 // x. Add items to lists
 // x. Update status of list items.
-// 5. Delete item option.
-// 6. Toggle complete status.
+// x. Toggle complete status.
+// 6. Delete item option.  
 // 7. Store lists in backend.
 //
 //
@@ -17,26 +17,37 @@
 import ReactDOM from 'react-dom'
 
 const types = {
-  major: { name: 'major', class: 'fa fa-plus-square-o' },
-  done: { name: 'done', class: 'fa fa-check' },
-  migrated: { name: 'migrated', class: 'fa fa-angle-right' },
-  scheduled: { name: 'scheduled', class: 'fa fa-angle-left' },
-  normal: { name: 'normal', class: 'fa fa-minus-square-o' }
+  normal: { name: 'normal', class: 'fa fa-dot-circle-o', doneClass: 'fa fa-circle'  },
+  major: { name: 'major', class: 'fa fa-circle-o', doneClass: 'fa fa-dot-circle-o'  },
+  migrated: { name: 'migrated', class: 'fa fa-angle-right', doneClass: 'fa fa-angle-left'  },
+  scheduled: { name: 'scheduled', class: 'fa fa-angle-left', doneClass: 'fa fa-angle-right' }
 };
 
-const itemClassName = (status) => {
-  return (types[status])
-    ? types[status].class
-    : types.normal.class;
+const itemClassName = (status, done) => {
+  if (!types[status]) { status = 'normal'; }
+  return (done)
+    ? types[status].doneClass
+    : types[status].class;
 }
 
+
+/**
+ * A list item.
+ *
+ * Can update the status or label.
+ */
 class Item extends React.Component {
 
   state = { label: this.props.label };
 
+  toggleDone = () => {
+    let myProps = JSON.parse(JSON.stringify(this.props));
+    myProps.done = !this.props.done;
+    this.props.handleEdit(myProps, false, true);
+  }
+
   handleClick = () => {
     this.props.handleEdit(this.props, true);
-    console.log('submit');
   }
 
   handleChange = (event) => {
@@ -45,7 +56,6 @@ class Item extends React.Component {
 
   handleKeyPress = (event) => {
     if (event.key === 'Enter') {
-      console.log('enter key submit');
       this.handleSubmit(event);
     }
   }
@@ -53,36 +63,40 @@ class Item extends React.Component {
   handleSubmit = (event) => {
     event.preventDefault();
     let myProps = JSON.parse(JSON.stringify(this.props));
-    console.log('Before: ', myProps);
     myProps.label = this.state.label;
-    console.log('After: ', myProps);
     this.props.handleEdit(myProps, false, true);
   }
 
   componentDidUpdate() { }
 
   render() {
-    if (this.props.edit && this.props.edit === true) {
-      return (
-        <i className={itemClassName(this.props.type)}>
-        <input type="text" className="edit"
+
+    let isEdit = (this.props.edit && this.props.edit === true);
+
+    let label = (isEdit)
+      ? <input type="text" className="edit"
           autoFocus
           value={this.state.label}
           onChange={this.handleChange}
           onBlur={this.handleSubmit} 
-          onKeyPress={this.handleKeyPress} /></i>
-      );
-    }
+          onKeyPress={this.handleKeyPress} />
+      : this.props.label;
 
-    return (
-      <div className="item">
-        <i className={itemClassName(this.props.type)}
-          onDoubleClick={this.handleClick}>{this.props.label}</i>
-      </div>
-    );
+    return (<div className={ (this.props.done ) ? 'item done' : 'item' }>
+      <i className={itemClassName(this.props.type,this.props.done)}
+        onClick={this.toggleDone}></i>
+      <span onDoubleClick={this.handleClick}>
+        { label }
+      </span>
+    </div>);
   }
 }
 
+
+/**
+ * A list of items,
+ * plus the ability to add to the list.
+ */
 const BulletList = (props) =>  {
   return (
     <div className="List">
@@ -100,6 +114,9 @@ const BulletList = (props) =>  {
 }
 
 
+/**
+ * A form to edit a parent list.
+ */
 class Form extends React.Component {
   static initialState = (props) => ({
     label: '',
@@ -144,12 +161,15 @@ class Form extends React.Component {
               return <SelectOption {...this.props.types[key]} /> }
           )}
         </select>
-        <button type="submit">Add</button>
       </form>
     );
   }
 }
 
+
+/**
+ * A select option
+ */
 const SelectOption = (props) => {
   return (
     <option value={props.name}>
@@ -159,6 +179,9 @@ const SelectOption = (props) => {
 }
 
 
+/**
+ * The main app container.
+ */
 class App extends React.Component {
 
   state = {
@@ -168,19 +191,23 @@ class App extends React.Component {
         items: [
           { label: "get keys",
             type: 'minor',
-            id: 1
+            id: 1,
+            done: false,
           },
           { label: "get soup",
             type: 'minor',
-            id: 2
+            id: 2,
+            done: false,
           },
           { label: "heat soup",
             type: 'minor',
-            id: 3
+            id: 3,
+            done: false,
           },
           { label: "bond with Max",
             type: 'major',
-            id: 4
+            id: 4,
+            done: false,
           },
         ],
       },
@@ -188,29 +215,36 @@ class App extends React.Component {
         title: 'Powerline Concert',
         items: [
           { label: "Give Max a choice",
-            type: 'minor',
-            id: 1
+            type: 'major',
+            id: 1,
+            done: false,
           },
-          { label: "get mad",
+          { label: "Get mad",
             type: 'minor',
-            id: 2
+            id: 2,
+            done: false,
           },
           { label: "Car Rolls Away",
-            type: 'minor',
-            id: 3
+            type: 'scheduled',
+            id: 3,
+            done: false,
           },
-          { label: "bond with Max",
-            type: 'major',
-            id: 4
+          { label: "Bond with Max",
+            type: 'migrated',
+            id: 4,
+            done: false,
           },
         ],
+      },
+      { id: 3,
+        title: 'None Yet',
+        items: [ ],
       },
     ]
   }
 
   editItem = (data, toggleOn, update) => {
     this.setState(prevState => {
-      console.log(data);
       let myList = prevState.lists.findIndex((obj => obj.id == data.lid));
       let myNewState = prevState;
 
@@ -219,6 +253,8 @@ class App extends React.Component {
           obj.edit = (obj.id === data.id && toggleOn === true) ? true : false;
           if (obj.id === data.id && update === true) {
             obj.label = data.label;
+            obj.type = data.type;
+            obj.done = data.done;
           }
           return obj;
         });
