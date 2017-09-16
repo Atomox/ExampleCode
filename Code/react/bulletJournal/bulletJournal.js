@@ -30,13 +30,20 @@ const itemClassName = (status) => {
 
 class Item extends React.Component {
 
+  state = { label: this.props.label };
+
   handleClick = () => {
     this.props.handleEdit(this.props, true);
     console.log('submit');
   }
 
+  handleChange = (event) => {
+    this.setState({label: event.target.value});
+  }
+
   handleSubmit = (event) => {
   	event.preventDefault();
+    console.log(this.state);
     this.props.handleEdit(this.props, false);
   }
 
@@ -48,7 +55,8 @@ class Item extends React.Component {
         <i className={itemClassName(this.props.type)}>
         <input type="text" className="edit"
         	autoFocus
-        	value={this.props.label}
+        	value={this.state.label}
+          onChange={handleChange}
           onBlur={this.handleSubmit}/></i>
       );
     }
@@ -191,8 +199,6 @@ class App extends React.Component {
     this.setState(prevState => {
       let myList = prevState.lists.findIndex((obj => obj.id == data.lid));
       let myNewState = prevState;
-
-      console.log(prevState.lists[myList].items);
 
       if (prevState.lists[myList]) {
          myNewState.lists[myList].items = prevState.lists[myList].items.map(function(obj) {
