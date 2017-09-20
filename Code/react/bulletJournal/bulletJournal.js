@@ -7,10 +7,16 @@
 // x. Update status of list items.
 // x. Toggle complete status.
 // 6. Delete item option.  
-// 7. Store lists in backend.
 //
+// Server 
+// 1. Load lists from backend.
+// 2. Store lists to backend.
 //
 // v2
+// 1. Expire items
+// 2. Contextual for the: week // month
+//
+// v3
 // 1. Multiple layout types (Day vs 7 days vs month)
 // 2. Change themes
 
@@ -67,6 +73,8 @@ class Item extends React.Component {
     this.props.handleEdit(myProps, false, true);
   }
 
+
+
   componentDidUpdate() { }
 
   render() {
@@ -88,6 +96,7 @@ class Item extends React.Component {
       <span onDoubleClick={this.handleClick}>
         { label }
       </span>
+      <i className="fa fa-times" onClick={this.props.handleDelete}></i>
     </div>);
   }
 }
@@ -106,7 +115,8 @@ const BulletList = (props) =>  {
         {props.items.map(items =>
           <Item {...items}
             handleEdit={props.editItem}
-             lid={props.id}
+            handleDelte={props.deleteItem}
+            lid={props.id}
             />)}
       </div>
     </div>
@@ -246,19 +256,29 @@ class App extends React.Component {
     ]
   }
 
-  editItem = (data, toggleOn, update) => {
+  editItem = (data, toggleOn, update, deleteItem) => {
     this.setState(prevState => {
-      let myList = prevState.lists.findIndex((obj => obj.id == data.lid));
+      let myList = this.findList(data.id, prevState);
       let myNewState = prevState;
 
-      if (prevState.lists[myList]) {
+      if (myList !== false && prevState.lists[myList]) {
          myNewState.lists[myList].items = prevState.lists[myList].items.map(function(obj) {
           obj.edit = (obj.id === data.id && toggleOn === true) ? true : false;
-          if (obj.id === data.id && update === true) {
-            obj.id = data.id;
-            obj.label = data.label;
-            obj.type = data.type;
-            obj.done = data.done;
+          if (obj.id === data.id) {
+
+            if (update === true) {
+              obj.id = data.id;
+              obj.label = data.label;
+              obj.type = data.type;
+              obj.done = data.done;
+            }
+            else if (delteItem === true) {
+              /**
+                @TODO
+                  What happens if you return false in map()?
+               */
+              return false;
+            }
           }
           return obj;
         });
@@ -270,11 +290,12 @@ class App extends React.Component {
     });
   }
 
+
   addNewItem = (data) => {
 
     this.setState(prevState => {
-      var lid = prevState.lists.findIndex((obj => obj.id == data.lid));
-      if (lid >= 0) {
+      var lid = this.findList(data.id, prevState);
+      if (lid !== false) {
         let deepState = Object.assign({}, this.state);
         let nextId = (this.state.lists[lid].nextItemId)
           ? this.state.lists[lid].nextItemId : 1;
@@ -295,13 +316,23 @@ class App extends React.Component {
     });
   }
 
+  removeItem = (data) => {
+    this.editItem(data, false, false, true);
+  }
+
+  findList = (list_id, prevState) => {
+    let lid = prevState.lists.findIndex((obj => obj.id == list_id));
+    return (lid >= 0)  ? lid : false;
+  }
+
   render() {
     return (
       <div>
         {this.state.lists.map(lists =>
             <BulletList {...lists} types={types}
               addItem={this.addNewItem}
-              editItem={this.editItem} />
+              editItem={this.editItem}
+              deleteItem={this.removeItem} />
           )
         }
       </div>
