@@ -12,6 +12,21 @@ let types = require('./types');
  */
 class App extends React.Component {
 
+  /**
+     @TODO
+
+       IN PROGRESS:
+
+         - Server: 
+          - http://localhost:8383/list/3
+          - http://localhost:8383/lists
+
+      Load state from here.
+
+
+      
+   */
+
   state = {
     lists: [
       { id: 1,
