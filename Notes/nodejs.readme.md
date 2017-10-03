@@ -207,7 +207,7 @@ let obj2 = {
 }
 ```
 
-Then, here are the 4 ways this is declared:
+#### 4 ways `this` is declared:
 ```
 foo();           // "global"
 ```
