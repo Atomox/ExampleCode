@@ -51,14 +51,15 @@ process.on('uncaughtException', (err) => {
 ```
 
 ## The Event Loop
- - The entity that handles external events and converts them into callback invocations.
+- The entity that handles external events and converts them into callback invocations.
 
+### Flow of the Loop
 1. Is the Event Queue Empty?
-  - No? Pop an item from the queue into the call stack.
-  - Yes?
+  a. No? Pop an item from the queue into the call stack.
+  b. Yes?
 2. Is the Call Stack Empty?
-  - No? Let it continue.
-  - Yes? Go to 1.
+  a. No? Let it continue.
+  b. Yes? Go to 1.
 3. If both the queue and the stack are empty, exit.
 
 - *Slow code on the Call Stack will block the Event Loop.*
