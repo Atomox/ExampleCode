@@ -55,11 +55,11 @@ process.on('uncaughtException', (err) => {
 
 ### Flow of the Loop
 1. Is the Event Queue Empty?
-  a. No? Pop an item from the queue into the call stack.
-  b. Yes?
+  1. No? Pop an item from the queue into the call stack.
+  2. Yes?
 2. Is the Call Stack Empty?
-  a. No? Let it continue.
-  b. Yes? Go to 1.
+  1. No? Let it continue.
+  2. Yes? Go to 1.
 3. If both the queue and the stack are empty, exit.
 
 - *Slow code on the Call Stack will block the Event Loop.*
