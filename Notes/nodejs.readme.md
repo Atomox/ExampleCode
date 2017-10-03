@@ -141,6 +141,91 @@ const readFileAsArray = function(file) {
 }
 ```
 
+
+# Javascript
+
+## Concepts
+
+### Hoisting
+```
+bob = 2;
+var bob;
+```
+In JS, you can assign a variable _before_ it's declairation, because the compiler will move all declarations to the top of their scope.
+
+### Strict Mode
+```
+'use strict';
+```
+- Prevent auto-variable declaration. If JS doesn't find a variable, within the scopes, it creates a new one at the highest level, global, scope.
+
+### IIFE
+```
+(function hiDad () {
+  let foo = bar;
+  echo foo;
+})();
+```
+This code is contained, including it's scope, and runs 
+- Stand for Immediately Invoked Function Expressions
+- Contains scope within the IFFE.
+
+### Closures
+```
+function makeAdder(x) {
+  function add(y) {
+    return x + y;
+  }
+}
+
+let plusOne = makeAdder(1);
+let plusTen = makeAdder(10);
+
+console.log(plusOne(21)); // Prints 22.
+console.log(plusTen(21)); // Prints 31.
+```
+- Functions remember where they were declaired, _not_ where they were run. So, they maintain the scope of their origin, not their location during execution.
+
+
+### This
+What `this` points to depends upon how the surrounding function was called.
+
+Consider:
+```
+function foo() {
+  console.log(this.bar);
+}
+
+let bar = 'global';
+let obj1 = {
+  bar: "obj1",
+  foo: foo
+}
+let obj2 = {
+  bar: "obj2"
+}
+```
+
+Then, here are the 4 ways this is declared:
+```
+foo();           // "global"
+```
+1. `this` refers to the global object.
+```
+obj1.foo();      // "obj1"
+```
+2. obj1.foo() sets this to obj1's object.
+```
+foo.call(obj2);  // "obj2"
+```
+3. foo.call(obj2) calls foo with obj2 asigned to `this`.
+```
+new foo();       // undefined
+```
+4. Creates a new, empty object, which `this` refers to.
+
+
+
 ## `let` vs `var`
 
 - Let is block scope.
@@ -170,3 +255,6 @@ const readFileAsArray = function(file) {
 ```
 
 - Want to make it immutable? Use `Object.freeze(food);`
+
+
+
