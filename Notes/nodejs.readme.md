@@ -233,7 +233,10 @@ new foo();       // undefined
 
 ### let
 
+- No more hoisting.
+  - You cannot assign to a variable before you declair it.
 - You can only declare a variable with let once per block scope. So, within the same block of scope, once you declare `let foo`, you cannot declare it again without an error.
+
 
 ```
 
@@ -242,6 +245,7 @@ new foo();       // undefined
 ### const
 
 - While const itself can't be changed, the properties inside a const object *can be changed*.
+- Const _must be_ initialized when daclared.
 
 ```
   const food = {
@@ -257,4 +261,56 @@ new foo();       // undefined
 - Want to make it immutable? Use `Object.freeze(food);`
 
 
+## Block Scoping
 
+```
+let myVar = 12;
+{
+  let myVar = 23;
+}
+console.log(myVar);  // outputs 12.
+```
+
+
+Closure state problems with var:
+```
+let myFunctions = [];
+for (var i = 0; i < 2; i++) {
+  myFunctions.push(function () { return i; });
+}
+console.log(myFunctions[0]()); // Outputs 2, because the entire closure gets a single state.
+```
+-with let-
+```
+let myFunctions = [];
+for (let i = 0; i < 2; i++) {
+  myFunctions.push(function () { return i; });
+}
+console.log(myFunctions[0]()); // Outputs 0, because the each iteration has it's own closure state.
+```
+With block scope, closures now work as we would expect, because each iteration is a block, and so block scope gives use 2 states, 1 for i=0, and 1 for i=1. 
+
+
+## Arrow Functions
+
+```
+  let cups_of_sugar = destination => {
+    (destination == 'moon') ? return 3.5 : 1;
+  };
+  console.log(hi_dad());  // Outputs "soup"
+```
+
+```
+  let hi_dad = () => 'soup';
+  console.log(hi_dad());  // Outputs "soup"
+```
+
+- This allows us to drop off "function" and "return".
+
+The above is equivalent to:
+```
+  let hi_dad = function () {
+    return 'soup';
+  }
+  console.log(hi_dad());  // Outputs "soup"
+```
