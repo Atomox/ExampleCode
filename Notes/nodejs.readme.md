@@ -315,3 +315,63 @@ The above is equivalent to:
   }
   console.log(hi_dad());  // Outputs "soup"
 ```
+
+### Arrow Functions change this scope
+```
+var invoice = {
+  number: 123,
+  process: function () {
+    console.log(this);
+  }
+}
+invoice.process();   // outputs: invoice{ number:123}
+```
+
+```
+var invoice = {
+  number: 123,
+  process: () => console.log(this);
+}
+invoice.process();   // outputs: Window { ... }
+```
+- *You cannot .bind() or .call() a new `this` to an arrow function.*
+
+
+## Rest and Spread Operators
+
+### `function someFunct(...variable)` Rest Operator
+Gather up all remaining parameters passed, and load them into the variable array.
+
+
+### `callFunction(...someArray)` Spread Operator
+Take an array of values, and explode them into multiple variables/parameters.
+- You can do this on function calls or array calls:
+```
+// On a function
+var prices = [12,20,18];
+var maxPrice = Math.max(...prices);
+console.log(maxPrice); // 20
+
+// On an array
+var prices = [12, 20, 18];
+var newPriceArray = [...prices];
+console.log(newPriceArray);  // [12, 20, 18]
+
+// On a string
+var myStr = "HiDad";
+console.log([...myStr]);  // ['H', 'i', 'D', 'a', 'd']
+```
+
+
+## `for ... of`
+- Works on iterables online, including arrays and strings.
+
+## Destructuring Arrays & Objects
+```
+let a = [10, 25, 50];
+let b = {a: 23, b: 25, c: 28};
+
+let [ten, twentyfive, fifty] = a;
+let {b1, b2, b3} = b;
+```
+Rappidly assign variables from an array or object to multiple variables.
