@@ -31,9 +31,10 @@ services:
 
       volumes:
         # Map a directory to import any backup files.
-        - ./data_dumps:/home/mssql/data_dumps
-        # Map a data directory to svae the state of your db between shutdowns.
-        - ./mssql-data:/var/opt/mssql/data
+        - ./data_dumps:/var/opt/mssql/backup
+        # Map a data directory to save the state of your db between shutdowns.
+        # Currently, because of OSX and Linux limitations on the filesystem, this does not work. :(
+        # - ./mssql-data:/var/opt/mssql/data
 ```
 
 
@@ -89,3 +90,29 @@ To quit, type `:quit`. All commands other than `GO` start with a colon (`:`).
     5> GO
     ```
     - Note: the square brackets in line 1, `RESTORE DATABASE [ektron9rv1-dev]` are escaping the name, since the hyphen is a special character in TSQL. If you are not using TSQL, you may have to use a different escape technique, such as "" for ANSI SQL.
+
+
+
+    ### Connect to DB on external machine
+    To connect with an MSSQL admin client (I like SQL Pro for MSSQL), you need to determine where Docker exposed it:
+    1. Find the name of the container: `docker ps`
+    2. Find the port, using: `docker inspect [container name or id]`
+    3. Look for something near the end, like:
+    ```
+                "Ports": {
+                    "1433/tcp": [
+                        {
+                            "HostIp": "0.0.0.0",
+                            "HostPort": "32780"
+                        }
+                    ]
+                },
+    ```
+    4. "HostPort": "32780" is the port you're looking for. This will change whenever you bring up the container/compose.
+    5. In you favourite MSSQL Client, use:
+    ```
+    Server Name: 127.0.0.1:[port_number]
+    Authentication: SQL Server Authentication
+    Login: SA
+    Password: [The password you set in docker-compose, under env: SA_PASSWORD]
+    ```
