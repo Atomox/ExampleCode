@@ -25,3 +25,66 @@ Directory/File structure for a D8 module. Good article:
   ->execute();
   ```
 
+
+## Site Configuration Sync
+
+In Drupal 8, you will manage the site configuration using the [Configuration Manager](https://www.drupal.org/docs/8/configuration-management/managing-your-sites-configuration).
+
+### Configure config location.
+You can control where the config directory lives in settings.php. Just search for `$config_directories`, and read the comments.
+
+It is a good idea to move this outside of the webroot, since the default location is under the files directory in Drupal. Set it in settings.php, like so:
+```
+$config_directories['sync'] = '/drupal-configuration/sync';
+```
+
+### Syncing config
+The config yml files exist so that you can move them between environments easier, as well as use source control on them. You can thus pass them between sites, and run a config sync.
+
+You can do run this from the admin at:
+```
+/admin/config/development/configuration
+```
+
+or via drush, like so:
+```
+drush cim -y
+```
+
+### Site UUID and Config Sync
+Drupal wants to be the heavy-handed mother you never had, so you can't just sync config between any old environment. They need to be a clone of the site where the config was made. This is checked via the **Site UUID**.
+
+You can get this UUID a few ways:
+
+1. If you have access to the original system, use drush:
+```
+drush cget system.site uuid
+```
+
+2. If you only have access to the config files, find them in the `config/sync/system.site.yml` file.
+
+It will look something like this:
+```
+{
+  uuid: 86b376c5-385e-4d13-bf00-e5e5443540e3
+  ...
+}
+```
+
+#### Set the site UUID
+Once you have the UUID, you can set it in the site you want to run the config in, using drush:
+```
+drush cset system.site uuid 86b376c5-385e-4d13-bf00-e5e5443540e3
+```
+
+Obviously, that value above will be the value of your UUID.
+
+Once that is done, you should be able to run `drush cim` with no problem.
+
+#### Issues running Config Import:
+
+If you get errors, read them. I had:
+- a missing module (which I had to download and enable)
+- content from the shortcuts module, which I had to delete first, at: admin > config > User Interfact > Shortcuts
+
+You errors may vary. **Read the error messages.**
