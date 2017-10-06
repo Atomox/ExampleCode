@@ -116,3 +116,42 @@ To quit, type `:quit`. All commands other than `GO` start with a colon (`:`).
     Login: SA
     Password: [The password you set in docker-compose, under env: SA_PASSWORD]
     ```
+
+## Configure PHP7-FPM to use SQLSRV Driver
+In order for PHP to connect to the MSSQL Server, you need to install sqlsrv and pdo_sqlsrv drivers.
+
+In your **dockerfile** for `php:7.1-fpm`, add this after the setup:
+
+```
+# Setup MS repositories before MSSQL dependencies
+RUN apt-get update \
+    && apt-get install -y apt-transport-https \
+    && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && curl https://packages.microsoft.com/config/debian/8/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update
+
+# Install Dependencies
+RUN ACCEPT_EULA=Y apt-get install -y unixodbc unixodbc-dev libgss3 odbcinst msodbcsql locales \
+    && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
+    && locale-gen
+
+# Install pdo_sqlsrv and sqlsrv from PECL. Replace pdo_sqlsrv-4.1.8preview with preferred version.
+RUN pecl install pdo_sqlsrv-4.1.8preview sqlsrv-4.1.8preview
+RUN docker-php-ext-enable pdo_sqlsrv sqlsrv
+```
+
+Run a test connection script from php:
+```
+<?php
+    $serverName = "__mssql_container_name__";
+    $connectionOptions = array(
+        "Database" => "__db_name__",
+        "Uid" => "sa",
+        "PWD" => "__your_password__"
+    );
+    //Establishes the connection
+    $conn = sqlsrv_connect($serverName, $connectionOptions);
+    if($conn)
+        echo "Connected!"
+?>
+```
