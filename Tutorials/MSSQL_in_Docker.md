@@ -140,6 +140,10 @@ RUN pecl install pdo_sqlsrv-4.1.8preview sqlsrv-4.1.8preview
 RUN docker-php-ext-enable pdo_sqlsrv sqlsrv
 ```
 
+#### Choose your SQLSRV Release:
+Check: https://pecl.php.net/package/sqlsrv
+
+#### Test a Connection in PHP7.
 Run a test connection script from php:
 ```
 <?php
