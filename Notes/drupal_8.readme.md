@@ -88,3 +88,19 @@ If you get errors, read them. I had:
 - content from the shortcuts module, which I had to delete first, at: admin > config > User Interfact > Shortcuts
 
 You errors may vary. **Read the error messages.**
+
+
+### Issues Running Config Sync from drush
+Ran out of memory when running: Drush uses the PHP CLI, not normal PHP, so you may need to change the memory limit for the CLI.
+
+Run
+```
+php --ini | grep 'memory_limit'
+```
+to see what the CLI limit is set to.
+
+If it's too low, debian-based systems (like Ubuntu) look for `*.ini` files starting in: `/usr/local/etc/php`. Create a file there, and add:
+```
+memory_limit=512
+```
+Where 512 is the number of MB you wish to allocate.

@@ -159,3 +159,27 @@ Run a test connection script from php:
         echo "Connected!"
 ?>
 ```
+
+
+## Useful MS SQL Queries
+
+### Show databases
+```
+select name, database_id FROM sys.databases;
+```
+
+### Show tables
+```
+select name from sys.Tables;
+```
+
+### Use a database
+square brackets are included for escaping special characters.
+```
+use [database-name];
+```
+
+### Show some content
+```
+SELECT TOP(100) * FROM content;
+```

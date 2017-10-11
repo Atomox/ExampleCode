@@ -77,3 +77,20 @@ Grep allows you to filter output to just the lines with your search term.
 
 Tail logs (and follow them)
 `tail -f /path/to/log`
+
+
+
+### PHP CLI Memory Limit
+Other PHP-based CLI tools can use the PHP CLI, not normal PHP, so you may need to change the memory limit for the CLI.
+
+Run
+```
+php --ini | grep 'memory_limit'
+```
+to see what the CLI limit is set to.
+
+If it's too low, debian-based systems (like Ubuntu) look for `*.ini` files starting in: `/usr/local/etc/php`. Create a file there, and add:
+```
+memory_limit=512
+```
+Where 512 is the number of MB you wish to allocate.
