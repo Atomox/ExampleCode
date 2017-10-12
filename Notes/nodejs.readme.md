@@ -159,6 +159,32 @@ In JS, you can assign a variable _before_ it's declairation, because the compile
 'use strict';
 ```
 - Prevent auto-variable declaration. If JS doesn't find a variable, within the scopes, it creates a new one at the highest level, global, scope.
+- Disables some dangerous methods:
+
+#### with()
+
+```
+with (someObject) {
+  a = b+c   // like someObject.a = someObject.b + someObject.c.
+}
+```
+This is disabled in strict mode, because the compiler disables several optomizations when with is used, because it changes lexical scope at run-time.
+
+#### eval() && setTimeout "some expression"
+
+- **setTimeout "expression" is disabled** in strict mode, because the compiler disables several optomizations when with is used, because it changes lexical scope at run-time.
+- **eval()** gets it's own scope, and **cannot affect external scope.**
+
+#### this
+
+From MSDN:
+"That means ... that in browsers it's no longer possible to reference the window object through this inside a strict mode function."
+
+#### New reserve words:
+
+From MSDN:
+"First, in strict mode a short list of identifiers become reserved keywords. These words are implements, interface, let, package, private, protected, public, static, and yield. In strict mode, then, you can't name or use variables or arguments with these names."
+
 
 ### IIFE
 ```
