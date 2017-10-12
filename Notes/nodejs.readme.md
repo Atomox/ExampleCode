@@ -269,11 +269,20 @@ new foo();       // undefined
 - No more hoisting.
   - You cannot assign to a variable before you declair it.
 - You can only declare a variable with let once per block scope. So, within the same block of scope, once you declare `let foo`, you cannot declare it again without an error.
+- Block scope works inside loops, inside if statements, almost anything with a pair of `{` `}` curly braces.
+  - This means scope earlier garbage collection, and performance gains!
 
 
 ```
-
+function foo() {
+  var bar = 'hi';
+  for (var i = 0; i < 2; i++) {      // var i vs let i.
+    //some code
+  }
+  console.log(i);   // with var i, we get "2". With let i, we get ReferenceError. 
+}
 ```
+Above, using let would assign `i` to the scope of the loop. Using var would hoist `i` to the scope of foo().
 
 ### const
 
@@ -415,3 +424,26 @@ let [ten, twentyfive, fifty] = a;
 let {b1, b2, b3} = b;
 ```
 Rappidly assign variables from an array or object to multiple variables.
+
+
+# Scope in JS
+
+## Ways to create new scope
+
+1. Function
+2. catch block
+3. let + `{}` curley braces
+
+### Block Scope vs Functional Scope
+
+- Traditional Javascript is functional scope, except `catch`.
+- Functional scope hoists var and function declariations up to the top of the scope.
+- Block scope stops at the block level.
+  - Variables don't live as long, so they can be garbage collected earlier.
+  - with `let`, they only exist from where they are declared until the end of the block.
+
+
+## Undeclared vs Undefined
+- Undeclared: Reference Error. Variable was never set.
+- Undefined: Variable was declared, but never given a value. 
+  - Note: `null` is an object, while `undefined` is it's own type.
