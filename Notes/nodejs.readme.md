@@ -188,6 +188,7 @@ From MSDN:
 
 ### IIFE
 ```
+// Starting with ( before function makes it a function expression, which 
 (function hiDad () {
   let foo = bar;
   echo foo;
@@ -196,6 +197,7 @@ From MSDN:
 This code is contained, including it's scope, and runs 
 - Stand for Immediately Invoked Function Expressions
 - Contains scope within the IFFE.
+- This is because normal ES5 is functional scope.
 
 ### Closures
 ```
@@ -251,6 +253,10 @@ new foo();       // undefined
 ```
 4. Creates a new, empty object, which `this` refers to.
 
+
+## `Catch` has Block Scope
+- In native ES5, the Catch part of the try/catch block was implemented as block scope.
+- This was before the block scope craze of ES6's let, () => {}, etc.
 
 
 ## `let` vs `var`
@@ -319,6 +325,14 @@ With block scope, closures now work as we would expect, because each iteration i
 
 
 ## Arrow Functions
+
+From MSDN: 
+"Two factors influenced the introduction of arrow functions: shorter functions and non-binding of this."
+
+- Used for functional expression replacement. Anonymous functions.
+- Since they are anonymous functions, they cannot self reference.
+  - Bad for cases such as recursion.
+  - Bad for debugging call stack traces.
 
 ```
   let cups_of_sugar = destination => {
