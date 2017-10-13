@@ -199,7 +199,10 @@ This code is contained, including it's scope, and runs
 - Contains scope within the IFFE.
 - This is because normal ES5 is functional scope.
 
+
 ### Closures
+Closure is when a function remembers it's lexicl scope even when the function is executed outside that lexical scope.
+
 ```
 function makeAdder(x) {
   function add(y) {
@@ -213,7 +216,77 @@ let plusTen = makeAdder(10);
 console.log(plusOne(21)); // Prints 22.
 console.log(plusTen(21)); // Prints 31.
 ```
+
+Closures remember their original scope, even when setTimeout is running a callback somewhere else (setTimeout is running somewher else)
+```
+// Prints i: 6 (6 times)
+// Because the scope is the entire function.
+for (var i=1; i <=5; i++) {
+    setTimeout(function(){
+      console.log("i: " + i);
+    }, i*1000);
+}
+
+// Prints 1 2 3 4 5
+// Because the scope is the IFFE, so not the entire loop. 
+for (var i=1; i <=5; i++) {
+    (function(i) {
+      setTimeout(function(){
+        console.log("i: " + i);
+      }, i*1000);
+    })(i);
+}
+```
+
 - Functions remember where they were declaired, _not_ where they were run. So, they maintain the scope of their origin, not their location during execution.
+- Closure is just a pointer to the lexical origin scope.
+
+
+### Classic Module Pattern
+
+Maintain a set of functions, and an internal state. Make only some members public. Without using a class.
+
+```
+var foo = (function(){
+
+  var o = { bar: "bar" };
+
+  return {
+    bar: function(){
+      // some code
+    }
+  }
+});
+
+foo.bar();
+```
+1. Outter wrapping function call.
+2. At least one inner function that returns out, keeping a closuree over the internal state.
+
+
+### ES6 Module Pattern
+
+Assume an entire file, like headers in c++:
+foo.js:
+```
+var o = { bar: "bar" };
+
+export function bar() {
+  return o.bar;
+}
+```
+- This is file-based
+
+```
+// Load just a piece like this:
+import bar from "foo";
+bar();  // "bar"
+
+// Load the entire module:
+module foo from "foo";
+foo.bar();
+```
+
 
 
 ### This
@@ -237,7 +310,7 @@ let obj2 = {
 
 #### 4 ways `this` is declared:
 
-1. normal behvior: function call()
+1. normal behavior: function call()
 ```
 foo();           // "global"
 ```
@@ -264,7 +337,30 @@ foo.apply(obj2);  // "obj2"
 new foo();       // undefined
 ```
 
-- Creates a new, empty object, which `this` refers to.
+- Creates a new, empty object, which `this` refers to. 
+#### `this` Order of Precidence:
+`new` takes precidences over everything else, **hard binding included.**
+
+1. new
+2. Call, apply, bind (or hard binding)
+3. Called on object.
+4. a. Global object
+   b. undefined in stract mode.
+
+
+#### Promises vs Callback and `this`
+
+- If you pass a callback that uses `this`, keep in mind that the `this` could revert to another method of `this`, depending upon how the callback is invoked.
+
+
+## new keyword
+
+When you use `new`, 4 things happen:
+
+1. A brand new object is created.
+2. *Object gets linked to a different object.*
+3. The new object is bound to `this` for the function call.
+4. If there is no return from the function, `this` will be returned.
 
 
 ## `Catch` has Block Scope
