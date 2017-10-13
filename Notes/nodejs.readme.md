@@ -236,22 +236,35 @@ let obj2 = {
 ```
 
 #### 4 ways `this` is declared:
+
+1. normal behvior: function call()
 ```
 foo();           // "global"
 ```
-1. `this` refers to the global object.
+- `this` refers to the global object, or `undefined` if in 'strict mode'.
+
+
+2. object.function()
 ```
 obj1.foo();      // "obj1"
 ```
-2. obj1.foo() sets this to obj1's object.
+
+- obj1.foo() sets this to obj1's object.
+
+3. function.call() or function.apply()
 ```
-foo.call(obj2);  // "obj2"
+foo.call(obj2);   // "obj2"
+foo.apply(obj2);  // "obj2"
 ```
-3. foo.call(obj2) calls foo with obj2 asigned to `this`.
+
+- foo.call(obj2) (or .apply()) calls foo with obj2 asigned to `this`.
+
+4. the `new` keyword
 ```
 new foo();       // undefined
 ```
-4. Creates a new, empty object, which `this` refers to.
+
+- Creates a new, empty object, which `this` refers to.
 
 
 ## `Catch` has Block Scope
