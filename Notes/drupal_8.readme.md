@@ -104,3 +104,35 @@ If it's too low, debian-based systems (like Ubuntu) look for `*.ini` files start
 memory_limit=512
 ```
 Where 512 is the number of MB you wish to allocate.
+
+
+## Migrate
+
+### Checking Errors in migration
+
+`Error: 'Migration does not meet requirements'`
+
+If you get this, try checking the core migration module `/src/Plugin/Migration.php`.
+
+Look for this function:
+
+```
+public function checkRequirements() {
+    // Check whether the current migration source and destination plugin
+    // requirements are met or not.
+    if ($this->getSourcePlugin() instanceof RequirementsInterface) {
+      $this->getSourcePlugin()->checkRequirements();
+    }
+    if ($this->getDestinationPlugin() instanceof RequirementsInterface) {
+      $this->getDestinationPlugin()->checkRequirements();
+    }
+
+    if (empty($this->requirements)) {
+      // There are no requirements to check.
+      return;
+    }
+```
+
+These two statements will check the source and destination, and make sure both meet requirements. However, if either one fails, you get a failure, and your migration won't show up in the list. This function helps you track down which piece is the problem.
+
+When I used the node::article plugin for the destination, I wasn't meeting all the requirements. Once I commented out this check, it started running. Thus, I knew the issues was in the destination.
