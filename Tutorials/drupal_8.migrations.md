@@ -437,7 +437,7 @@ source:
 ```
 Since we only care about making a link to the paragraph, we only care about including a source field that can help us link back to that paragraph's Drupal ID. So, we need the source key we used when creating that paragraph.
 
-
+```
 # This is where we translate the incoming source,
 # and map it to the destination (D8) fields.
 process:
