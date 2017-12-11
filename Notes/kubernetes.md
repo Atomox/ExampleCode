@@ -45,8 +45,8 @@ Pods are the smallest unit of measure, and always wrap a container. While there 
 
 
 ### Services
-A service sits in front of pods, and persists a front-facing IP address and DNS for the entire group of pods. Pods can spin up or go down, each with their own internal IP. We don't care, because the service sits in front, and routs all requests to and from these pods behind a single IP.
-- Services grab and route for anything with the same tag.
+A service sits in front of pods, and persists a front-facing IP address and DNS for the entire group of pods. Pods can spin up or go down, each with their own internal IP. We don't care, because the service sits in front, and routes all requests to and from these pods behind a single IP.
+- Services grab and routes anything with the same tag.
 - Use multiple tags for selectors. Only pods that have ALL tags will be selected as under that service.
   - E.G. Tag Pods: `Prod`, `B.E.`, `1.4`, and the service just `Prod` and `B.E.`, and it will include all Pods with those tags, regardless of version number.
 - Only routes to healthy pods (must pass healthcheck -- remember that endpoint in the pods definition?)
@@ -55,9 +55,9 @@ A service sits in front of pods, and persists a front-facing IP address and DNS 
 - Used TCP by default.
 
 
-### Proxy
+#### Proxy
 Pods that are running inside Kubernetes are running on a private, isolated network. By default, they are visible from other pods and services within the same kubernetes cluster, **but not outside that network.** When we use `kubectl`, we're interacting through an API endpoint to communicate with our application.
-- Expose the communications from the node into the cluster with a `proxy`:
+- Expose the communications from the node into the cluster (i.e. the outside world) with a `proxy`.
 
 
 ### Labels
