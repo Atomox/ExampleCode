@@ -15,9 +15,10 @@ The master contains a few things we care about, such as:
 
 Generally, what you need to know is that `kubectl` formats commands in JSON, and sends them to the API Server in this master, and then they are routed to Nodes.
 
+
 ### Nodes (Minions)
 
-- **Kubelet** -- Main Kubernetes agent on the node.
+- **Kubelet** -- Main Kubernetes agent on the node. (Reports back to Master)
   - Exposes endpoint on `:10255` where it can be inspected.
     - `/spec` -- Gives you specs on the node.
     - `/healthz` -- Gives you health Info.
@@ -27,11 +28,12 @@ Generally, what you need to know is that `kubectl` formats commands in JSON, and
 - Container runtime
   - Usually **Docker**, but could be **rkt**. Pluggable.
   - Pulls images
-  - Starts/stops containers
+  - Starts/stops containers (runs the containers, i.e. your app.)
 - **Kube Proxy** -- Te network brains of the node.
   - **Gives a single IP to each Pod.**
   - Performs some Load Balancing between services within the node.
     - @TODO Flesh out what this means.
+
 
 ### Pods
 Pods are the smallest unit of measure, and always wrap a container. While there can be more than one container per pod, there is always at least one pod for a container.
@@ -51,6 +53,11 @@ A service sits in front of pods, and persists a front-facing IP address and DNS 
 - Session Affinity is available, but turned off by default.
 - Can point outside of the cluster.
 - Used TCP by default.
+
+
+### Proxy
+Pods that are running inside Kubernetes are running on a private, isolated network. By default, they are visible from other pods and services within the same kubernetes cluster, **but not outside that network.** When we use `kubectl`, we're interacting through an API endpoint to communicate with our application.
+- Expose the communications from the node into the cluster with a `proxy`:
 
 
 ### Labels
@@ -102,6 +109,37 @@ kubectl config current-context
 
 # K8s on Aws
 - needs `kops`, `AWS CLI`
+
+
+# Kubectl, The CLI
+
+```
+# Create from our config file (hence -f _file_name_)
+kubectl create -f rc.yml
+
+# Get all pods with 'rc' in the name.
+kubectl get rc
+
+# Describe all pods with 'rc' in the name.
+kubectl describe rc
+
+# Update the config, then apply the changes.
+vi rc.yml
+kubectl apply -f rc.yml
+```
+
+
+```
+# Logs
+kubect logs [name_of_pod]
+
+# Exec a command
+kubectl exec [name_of_pod] env
+
+# Start BASH on the container
+kubectl exec -ti $POD_NAME bash
+```
+
 
 
 # Examples
@@ -207,83 +245,57 @@ curl 1.2.3.4:3001
 
 
 
-
-
-# Kubectl Commands
-
-```
-# Create from our config file (hence -f _file_name_)
-kubectl create -f rc.yml
-
-# Get all pods with 'rc' in the name.
-kubectl get rc
-
-# Describe all pods with 'rc' in the name.
-kubectl describe rc
-
-# Update the config, then apply the changes.
-vi rc.yml
-kubectl apply -f rc.yml
-```
-
-
-
-## Commands for Hello World
+## Commands for Hello World on Minikube (locally)
 
 ### Machine Spin-up
-See what's running, including master, dashboard, monitoring, heapster, etc.
-- `kubectl cluster-info`
-- `kubectl cluster-info dump`
-- `minikube start`
+```
+# See what's running, including master, dashboard, monitoring, heapster, etc.
+kubectl cluster-info
+kubectl cluster-info dump
+minikube start
 
-### Confirm Minikube is running:
-- `minikube status`
+# Confirm Minikube is running:
+minikube status
+```
 
 ### Get a container, and spin it up
-- `kubectl run hello-minikube --image=gcr.io/google_containers/echoserver:1.4 --port=8080`
-- `kubectl expose deployment hello-minikube --type=NodePort`
+```
+# Run the contain, and then expose it to the outside world. (via a Port)
+kubectl run hello-minikube --image=gcr.io/google_containers/echoserver:1.4 --port=8080
+kubectl expose deployment hello-minikube --type=NodePort
+```
 
 ### Find the existing Pods, then hit them.
-- `kubectl get pod`
-- `curl $(minikube service hello-minikube --url)`
-  - `minikube service [service-name] -- url`
+```
+# Show a list of pods.
+kubectl get pod
+
+# CURL the pod
+curl $(minikube service hello-minikube --url)
+
+# Get the url from the service layer.
+minikube service [service-name] -- url
+```
 
 ### Cleanup
-- `kubectl delete deployment hello-minikube`
-- `minikube stop`
+```
+# Delete the deployment and the pod.
+kubectl delete deployment hello-minikube
+
+# Stop the minikube node.
+minikube stop
+```
 
 
 ## Deployments
 
-### Nodes
-- `kubectl get nodes`
-Show all nodes that can be used to host apps.
+```
+# Run a container with the provided image, version v1, on port 8080
+kubectl run node-kubernetes-hello --image=docker.io/jocatalin/node-kubernetes-hello:v1 --port=8080
 
-Every Kubernetes Node runs at least:
-
-- Kubelet, a process responsible for communication between the Kubernetes Master and the Nodes; it manages the Pods and the containers running on a machine.
-- A container runtime (like Docker, rkt) responsible for pulling the container image from a registry, unpacking the container, and running the application.
-
-
-### Run
-
-- `kubectl run kubernetes-bootcamp --image=docker.io/jocatalin/kubernetes-bootcamp:v1 --port=8080`
-
-1. Look for a node, 2. schedule the add to run on it, and 3. Configured the cluster to reschedule the instance of a new Node when needed
-
-- `kubectl get deployments`
-Show all deployments
-
-
-### Proxy
-Pods that are running inside Kubernetes are running on a private, isolated network. By default, they are visible from other pods and services within the same kubernetes cluster, **but not outside that network.** When we use `kubectl`, we're interacting through an API endpoint to communicate with our application.
-
-
-- Expose the communications from the node into the cluster with a `proxy`:
-
-The kubectl command can create a proxy that will forward communications into the cluster-wide, private network. The proxy can be terminated by pressing control-C and won't show any output while its running.
-
-The proxy enables direct access to the API from these terminals.
+# Show all deployments
+kubectl get deployments
+```
 
 ### Get the POD name, then use it to curl the API of our pod
 
@@ -296,15 +308,7 @@ echo Name of the Pod: $POD_NAME
 curl http://localhost:8001/api/v1/proxy/namespaces/default/pods/$POD_NAME/
 ```
 
-### Logs
-`kubect logs [name_of_pod]`
 
-
-### Exec
-`kubectl exec [name_of_pod] env`
-
-#### Start BASH on the container:
-```kubectl exec -ti $POD_NAME bash```
 
 
 
