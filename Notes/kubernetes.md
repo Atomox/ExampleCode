@@ -1,14 +1,73 @@
 # Kubernetes && Minikube
 
-## Setup local Kubernetes
+## Big Picture
 
-Setup the CMD Line Tool: kubectl
+A K8s cluster has Masters and Nodes. The Masters manage and delegate, and the nodes do all the work, watch for changes, and report back.
 
-Use Minikube. Setup instructions here: https://kubernetes.io/docs/getting-started-guides/minikube
+We define our app in a deployment.yml file, which we give to as Master. The Master, deploys the app across some nodes, which run the app.
+
+### Master
+The master contains a few things we care about, such as:
+- **API Gateway -- This controls the in/out to the app, via API endpoints using JSON.**
+- Cluster Store -- Uses ETCD (key/value store) to store the state of the cluster.
+- Controller --
+- Scheduler -- Constraints and resource management, etc.
+
+Generally, what you need to know is that `kubectl` formats commands in JSON, and sends them to the API Server in this master, and then they are routed to Nodes.
+
+### Nodes (Minions)
+
+- **Kubelet** -- Main Kubernetes agent on the node.
+  - Exposes endpoint on `:10255` where it can be inspected.
+    - `/spec` -- Gives you specs on the node.
+    - `/healthz` -- Gives you health Info.
+    - `/pods` -- Running pods.
+  - Reports back to the Master when something fails. Takes no action to restart.
+  - Watches the API Server on the Master.
+- Container runtime
+  - Usually **Docker**, but could be **rkt**. Pluggable.
+  - Pulls images
+  - Starts/stops containers
+- **Kube Proxy** -- Te network brains of the node.
+  - **Gives a single IP to each Pod.**
+  - Performs some Load Balancing between services within the node.
+    - @TODO Flesh out what this means.
+
+### Pods
+Pods are the smallest unit of measure, and always wrap a container. While there can be more than one container per pod, there is always at least one pod for a container.
+- A Pod is just a single namespace/wrapper to run a container inside of.
+- If two containers are in a pod, they can use `localhost` to talk to one another.
+- Same goes for mounter volumes.
+- Pods are never listed as available until ALL ITEMS in the pod are ready.
+- A pod always exists inside a single node.
 
 
+### Services
+A service sits in front of pods, and persists a front-facing IP address and DNS for the entire group of pods. Pods can spin up or go down, each with their own internal IP. We don't care, because the service sits in front, and routs all requests to and from these pods behind a single IP.
+- Services grab and route for anything with the same tag.
+- Use multiple tags for selectors. Only pods that have ALL tags will be selected as under that service.
+  - E.G. Tag Pods: `Prod`, `B.E.`, `1.4`, and the service just `Prod` and `B.E.`, and it will include all Pods with those tags, regardless of version number.
+- Only routes to healthy pods (must pass healthcheck -- remember that endpoint in the pods definition?)
+- Session Affinity is available, but turned off by default.
+- Can point outside of the cluster.
+- Used TCP by default.
+
+
+### Labels
+Basically tags. Tag Pods, Tag Services, basically a taxonomy you can use to identify and filter things.
+
+
+### Deployments
+Declare what a system should look like, and pass it to the master. We define what it should look like in a deployment, and hand it off to Kubernetes, which takes care of spinning up the system based upon our deployment file.
+- Described as YML or JSON.
+- Add Versioning, rolling updates, simple rollbacks.
+
+
+# Kubernetes Commands
 
 ## Kubectl
+Use Kubectl to interact with Kubernetes on the command line. Kubectl takes commands, and interfaces with the API Gateway.
+
 - `kubectl get`
 list resources
 - `kubectl describe`
@@ -20,6 +79,13 @@ Execute a command on a container in the pod.
 - `kubectl cluster-info`
 - `kubectl cluster-info dump`
 
+
+# Local Kubernetes
+
+## Setup local Kubernetes
+Setup the CMD Line Tool: kubectl
+Use Minikube. Setup instructions here: https://kubernetes.io/docs/getting-started-guides/minikube
+
 ### Context
 `mubectl` relies on a context. Always make sure you've set it, and that it's right:
 ```
@@ -29,6 +95,137 @@ kubectl config use-context minikube`
 # Confirm current context
 kubectl config current-context
 ```
+
+**You can use `kubectl` for local and production, depending upon the set context. Always check your context before running commands.**
+
+# Kubernetes on Google
+
+# K8s on Aws
+- needs `kops`, `AWS CLI`
+
+
+# Examples
+
+## Create a Pod and Deploy it
+
+### Basic `Pod` yml, pod.yml:
+```
+apiVersion: v1
+kind: Pod
+  labels:
+    zone: prod
+    version: v1
+metadata:
+  name: hello-pod
+spec:
+  containers:
+    - name: hello-ctr
+    image: hotsoup/docker-ci:latest
+    ports:
+    - containerPort: 8080
+```
+
+```
+# Deploy the pod
+kubectl create -f pod.yml
+
+# Check the Status
+kubectl get pods
+
+# Show the details of the Pod, get any messages
+kubectl describe pods
+```
+## Create `a bunch of pods`, and deploy them.
+### Basic Replication yml:
+```
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: hello-rc
+specs:
+  replicas: 10
+  selector:
+    app: hello-world
+  template:
+    metadata:
+      labels:
+        app: hello-world
+    spec:
+      containers:
+      - name: hello-pod
+      image: hotsoup/docker-ci:latest
+      ports:
+      - containerPort: 8080
+```
+
+## Expose Our App via `Services`
+
+### The basic way:
+```
+# Expose the service
+kubectl expose rc hello-rc --name=hello-svc --target-port=8080 --type=NodePort
+
+# Show the details
+kubectl describe svc hello-svc
+
+# Get the list
+kubectl get svc
+
+# Clean it up
+kubectl delete svc hello-svc
+```
+
+### The Better way, with a YML:
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-svc
+  labels:
+    app: hello-world
+spec:
+  type: NodePort
+  # Could also be:
+  # ClusterIP (stable INTERNAL IP for inside the cluster)
+  # LoadBalancer: (integrates NodePort with cloud-based load balancers)
+
+  ports:
+  - port: 8080
+    nodePort: 30001
+    protocol: TCP
+  selector:
+    app: hello-world
+```
+
+```
+# Run it.
+kubectl create -f svc.yml
+
+# Now we can hit it:
+curl 1.2.3.4:3001
+```
+
+
+
+
+
+# Kubectl Commands
+
+```
+# Create from our config file (hence -f _file_name_)
+kubectl create -f rc.yml
+
+# Get all pods with 'rc' in the name.
+kubectl get rc
+
+# Describe all pods with 'rc' in the name.
+kubectl describe rc
+
+# Update the config, then apply the changes.
+vi rc.yml
+kubectl apply -f rc.yml
+```
+
 
 
 ## Commands for Hello World
@@ -111,7 +308,7 @@ curl http://localhost:8001/api/v1/proxy/namespaces/default/pods/$POD_NAME/
 
 
 
-## Docker
+## Using Docker with K8s.
 
 ### Step-by-Step from Docker to Kubernetes Container
 
