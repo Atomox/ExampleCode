@@ -72,7 +72,7 @@ Declare what a system should look like, and pass it to the master. We define wha
 
 # Kubernetes Commands
 
-## Kubectl
+## Kubectl, The CLI
 Use Kubectl to interact with Kubernetes on the command line. Kubectl takes commands, and interfaces with the API Gateway.
 
 - `kubectl get`
@@ -85,6 +85,18 @@ Print the logs from a container in a pod.
 Execute a command on a container in the pod.
 - `kubectl cluster-info`
 - `kubectl cluster-info dump`
+
+
+```
+# Logs
+kubect logs [name_of_pod]
+
+# Exec a command
+kubectl exec [name_of_pod] env
+
+# Start BASH on the container
+kubectl exec -ti $POD_NAME bash
+```
 
 
 # Local Kubernetes
@@ -111,36 +123,6 @@ kubectl config current-context
 - needs `kops`, `AWS CLI`
 
 
-# Kubectl, The CLI
-
-```
-# Create from our config file (hence -f _file_name_)
-kubectl create -f rc.yml
-
-# Get all pods with 'rc' in the name.
-kubectl get rc
-
-# Describe all pods with 'rc' in the name.
-kubectl describe rc
-
-# Update the config, then apply the changes.
-vi rc.yml
-kubectl apply -f rc.yml
-```
-
-
-```
-# Logs
-kubect logs [name_of_pod]
-
-# Exec a command
-kubectl exec [name_of_pod] env
-
-# Start BASH on the container
-kubectl exec -ti $POD_NAME bash
-```
-
-
 
 # Examples
 
@@ -163,6 +145,7 @@ spec:
     - containerPort: 8080
 ```
 
+
 ```
 # Deploy the pod
 kubectl create -f pod.yml
@@ -173,6 +156,7 @@ kubectl get pods
 # Show the details of the Pod, get any messages
 kubectl describe pods
 ```
+
 ## Create `a bunch of pods`, and deploy them.
 ### Basic Replication yml:
 ```
@@ -195,6 +179,22 @@ specs:
       ports:
       - containerPort: 8080
 ```
+Then run the commands:
+```
+# Create from our config file (hence -f _file_name_)
+kubectl create -f rc.yml
+
+# Get all pods with 'rc' in the name.
+kubectl get rc
+
+# Describe all pods with 'rc' in the name.
+kubectl describe rc
+
+# Update the config, then apply the changes.
+vi rc.yml
+kubectl apply -f rc.yml
+```
+
 
 ## Expose Our App via `Services`
 
@@ -235,6 +235,7 @@ spec:
     app: hello-world
 ```
 
+Then run the commands:
 ```
 # Run it.
 kubectl create -f svc.yml
