@@ -141,11 +141,11 @@ kubectl config current-context
 ```
 apiVersion: v1
 kind: Pod
+metadata:
+  name: hello-pod
   labels:
     zone: prod
     version: v1
-metadata:
-  name: hello-pod
 spec:
   containers:
     - name: hello-ctr
