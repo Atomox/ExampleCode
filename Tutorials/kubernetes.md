@@ -446,3 +446,80 @@ kubectl get deployments,services
 # Stop Minikube.
 minikube stop
 ```
+
+
+## Deploy an App on Kubernetes
+
+1. Build your app, wrap it in a docker container.
+
+2. Build the docker image, and export it.
+
+3. Build a kubernetes deployment Yml file. Like so:
+
+```
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: crypto-server-deploy
+spec:
+  replicas: 4
+  minReadySeconds: 4
+  # Deployment strategy
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      # Take 1 pod down at a time
+      maxUnavailable: 1
+      # Never have more than 1 above our # of replicas (so 10 + 1: never more than 11)
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: crypto-server
+    spec:
+      containers:
+        - name: crypto-server
+          image: atomox/cryptonomicon:crypto-server-v1
+          ports:
+            - containerPort: 8383
+```
+
+4. Spin it up.
+```
+kubectl create -f deployment.yml
+```
+
+5. Create a service yml.
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: crypto-server-svc
+  labels:
+    app: crypto-server
+spec:
+  type: NodePort
+  ports:
+    - port: 8383
+      nodePort: 30001
+      protocol: TCP
+  selector:
+    app: crypto-server
+```
+
+The `port` maps to the internal network's port (read: your node app's mapped port)
+The `nodePort` maps to the outside world where someone can hit your port. This is what you put into your web browser, which routes to the internal port of `port`.
+
+**`nodePorts` are the outside-world ports, and the range is defaulted between 30000-32000.**
+
+E.G. If you expose your node app on 8383, and expose it via the docker container on 8383, then you would set `- port: 8383` and `nodePort:30001`.
+
+6. Make sure everything is up.
+
+7. Get your public minikube ip:
+
+```
+minikube ip
+```
+
+8. Using the above ip, hit your app with: [above ip]:[NodePort port]. Locally, if it doesn't work, make sure you do http, not https.

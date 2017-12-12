@@ -82,7 +82,7 @@ This is in YAML format, so indentation matters. However, the commands themselves
 This file is called `dockerfile-php`, but you can call it whatever you want, so long as your docker-compose.yml file references it properly.
 
 
-### Building a single Dokerfile from this image:
+### Building a single Dockerfile from this image:
 You can run `docker build` to build a dockerfile into an image. If you plan to use docker-compose,
 then ignore this. If, however, you're compiling for Kubernetes, this is the section for you.
 
@@ -100,6 +100,21 @@ Once you do this, you can confirm it was built using:
 ```
 docker images | grep '_your_image_name_here_'
 ```
+
+### TAG & Publish your image to Dockerhub
+In order to deploy your image, you need to tag it:
+```
+# Tag your image
+docker tag your_image_name:v1 youruser/your_repositry:your_image-tag
+
+# Login to your docker-cloud account in your prompt
+docker login
+
+# Push your tagged image to dockerhub / dockercloud
+docker push username/repository:tagname
+```
+Now confirm you see your image on your repository.
+
 
 
 ## Docker-Compose.yml
