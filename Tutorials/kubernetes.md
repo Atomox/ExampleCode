@@ -399,56 +399,7 @@ curl http://localhost:8001/api/v1/proxy/namespaces/default/pods/$POD_NAME/
 
 ## Using Docker with K8s.
 
-### Step-by-Step from Docker to Kubernetes Container
-
-1. Setup a Dockerfile
-```
-FROM node:version
-EXPOSE some_port
-COPY _files_into_container_
-CMD node app.js
-```
-
-Then return to bash to get things going.
-```
-# Expose docker env variables to Minikube.
-$ eval $(minikube docker-env)
-
-# Build it with a name and version.
-$ docker buid -t my-app-name:my-version
-
-# Ship it.
-kubectl run my-app-name --image=my-app-name:version --port=my_port
-
-# Confirm it worked (deployment and pod)
-kubectl get deployments
-
-kubectl get pods
-
-# Expose it type would be LoadBalancer in a real environment.
-kubectl expose deployment name-from-deployment-list --type=NodePort
-
-# Confirm the services.
-kubectl services
-
-# Confirm our nodejs service is running.
-curl $(minikube service hell-node-js --url)
-```
-
-If you wanna clean up after playtime...
-```
-# Delete the deployment and service.
-kubectl delete deployment, service hello-nodejs
-
-# Confirm we're good.
-kubectl get deployments,services
-
-# Stop Minikube.
-minikube stop
-```
-
-
-## Deploy an App on Kubernetes
+### Deploy an App on Kubernetes
 
 1. Build your app, wrap it in a docker container.
 
