@@ -123,6 +123,11 @@ kubectl config current-context
 - needs `kops`, `AWS CLI`
 
 
+# Where do we go from here?
+
+- Learn Highly Available (H/A), like etcd.
+- Learn other Kubernetes objects, like LoadBalancer Services, etc.
+
 
 # Examples
 
@@ -242,8 +247,83 @@ kubectl create -f svc.yml
 
 # Now we can hit it:
 curl 1.2.3.4:3001
+
+# Clean up
+kubectl delete rc hello-rc
 ```
 
+## Create a Deployment
+
+### The YML Way
+```
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: hello-deploy
+spec:
+  replicas: 10
+  minReadySeconds: 10
+  # Deployment strategy
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      # Take 1 pod down at a time
+      maxUnavailable: 1
+      # Never have more than 1 above our # of replicas (so 10 + 1: never more than 11)
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: hello-world
+      spec:
+        containers:
+        - name: hello-pod
+          image: hotsoup/docker-ci:latest
+          ports:
+          - containerPort: 8080
+```
+Now run it:
+```
+# Spin it up
+kubectl create -f deploy.yml
+
+# Check it out
+kubectl describe deploy hello-deploy
+
+# Show the Replica Sets
+kubectl get rs
+
+# Describe the Replica Set
+kubectl describe rs
+```
+
+#### Update a deployment
+```
+# Apply the update. Use --record so that this command
+# shows up in the deployment history.
+kubectl apply -f deploy.yml --record
+
+# Roll it out
+kubectl rollout status deployment hello-deploy
+
+# Check it out
+kubectl get deploy hello-deploy
+
+# Show the deployment history
+kubectl rollout history deployment hello-deploy
+```
+
+#### Rollback a deployment
+```
+# Rollback to the first version.
+kubectl rollout undo deployment hello-deploy --to-revision=1
+
+# Show deployments
+kubectl get deploy
+
+# Watch the rollout
+kubectl rollout status deployment hello-deploy
+```
 
 
 ## Commands for Hello World on Minikube (locally)
