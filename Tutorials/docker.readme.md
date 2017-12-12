@@ -16,9 +16,9 @@ Enter the `Volume`. This is a layer that can hold data, and persists even when a
 
 
 ## Running Containers Solo
-You can run containers by themselves, without talking to other systems. This can be good for 1-time calls, like compiling a Java application in Maven, or a 1-time SASS compile.
+You can run containers by themselves, without talking to other systems. This can be good for 1-time calls, like compiling a Java application in Maven, or a 1-time SASS compile. It can also be good if you plan on incorporating them with something like Kubernetes.
 
-While you can run multiple containers, and link them this way, it's dumb, messy, and each command is like a 500 character bash command. Instead, the docker-compose.yml file can tie your containers together.
+While you can run multiple containers, and link them this way, it's dumb, messy, and each command is like a 500 character bash command. Instead, the docker-compose.yml file can tie your containers together. Note: if you're deploying to Kubernetes, single compiling will make sense.
 
 
 ## Docker-Compose.yml vs Dockerfile
@@ -81,7 +81,32 @@ This is in YAML format, so indentation matters. However, the commands themselves
 
 This file is called `dockerfile-php`, but you can call it whatever you want, so long as your docker-compose.yml file references it properly.
 
+
+### Building a single Dokerfile from this image:
+You can run `docker build` to build a dockerfile into an image. If you plan to use docker-compose,
+then ignore this. If, however, you're compiling for Kubernetes, this is the section for you.
+
+```
+docker build -t "containername:version" -f dockerfilename path/to/dockerfile
+```
+What's going on here?
+
+We're telling docker to use an existing file (note the `-f`) to build an image.
+Once we're done building, we'll tag this image with a name and a release. (using `-t`)
+It goes name:version. The name is whatever you want. The version indicates which release this is,
+something like: `hello-world-app:version1`.
+
+Once you do this, you can confirm it was built using:
+```
+docker images | grep '_your_image_name_here_'
+```
+
+
 ## Docker-Compose.yml
+
+This is for running containers as a group, and mostly for local development. You wont' use this in tandem with something like Kubernetes, but it's perfect for a quick spin-up of local dev. All containers in here will be built with a single command, and they can all talk to each other by default.
+
+It's awesome.
 
 ```
 
