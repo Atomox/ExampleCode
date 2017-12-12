@@ -330,73 +330,6 @@ kubectl rollout status deployment hello-deploy
 ```
 
 
-## Commands for Hello World on Minikube (locally)
-
-### Machine Spin-up
-```
-# See what's running, including master, dashboard, monitoring, heapster, etc.
-kubectl cluster-info
-kubectl cluster-info dump
-minikube start
-
-# Confirm Minikube is running:
-minikube status
-```
-
-### Get a container, and spin it up
-```
-# Run the contain, and then expose it to the outside world. (via a Port)
-kubectl run hello-minikube --image=gcr.io/google_containers/echoserver:1.4 --port=8080
-kubectl expose deployment hello-minikube --type=NodePort
-```
-
-### Find the existing Pods, then hit them.
-```
-# Show a list of pods.
-kubectl get pod
-
-# CURL the pod
-curl $(minikube service hello-minikube --url)
-
-# Get the url from the service layer.
-minikube service [service-name] -- url
-```
-
-### Cleanup
-```
-# Delete the deployment and the pod.
-kubectl delete deployment hello-minikube
-
-# Stop the minikube node.
-minikube stop
-```
-
-
-## Deployments
-
-```
-# Run a container with the provided image, version v1, on port 8080
-kubectl run node-kubernetes-hello --image=docker.io/jocatalin/node-kubernetes-hello:v1 --port=8080
-
-# Show all deployments
-kubectl get deployments
-```
-
-### Get the POD name, then use it to curl the API of our pod
-
-```
-# Store the name from the config into a BASH variable
-export POD_NAME=$(kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
-echo Name of the Pod: $POD_NAME
-
-# Reference that name via the variable above, and hit the root of that API.
-curl http://localhost:8001/api/v1/proxy/namespaces/default/pods/$POD_NAME/
-```
-
-
-
-
-
 ## Using Docker with K8s.
 
 ### Deploy an App on Kubernetes
@@ -474,3 +407,17 @@ minikube ip
 ```
 
 8. Using the above ip, hit your app with: [above ip]:[NodePort port]. Locally, if it doesn't work, make sure you do http, not https.
+
+
+## Misc
+
+### Get the POD name, then use it to curl the API of our pod
+
+```
+# Store the name from the config into a BASH variable
+export POD_NAME=$(kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
+echo Name of the Pod: $POD_NAME
+
+# Reference that name via the variable above, and hit the root of that API.
+curl http://localhost:8001/api/v1/proxy/namespaces/default/pods/$POD_NAME/
+```
