@@ -6,6 +6,8 @@ A K8s cluster has Masters and Nodes. The Masters manage and delegate, and the no
 
 We define our app in a deployment.yml file, which we give to as Master. The Master, deploys the app across some nodes, which run the app.
 
+## The Pieces
+
 ### Master
 The master contains a few things we care about, such as:
 - **API Gateway -- This controls the in/out to the app, via API endpoints using JSON.**
@@ -60,7 +62,7 @@ Pods that are running inside Kubernetes are running on a private, isolated netwo
 - Expose the communications from the node into the cluster (i.e. the outside world) with a `proxy`.
 
 
-### Labels
+#### Labels
 Basically tags. Tag Pods, Tag Services, basically a taxonomy you can use to identify and filter things.
 
 
@@ -70,9 +72,9 @@ Declare what a system should look like, and pass it to the master. We define wha
 - Add Versioning, rolling updates, simple rollbacks.
 
 
-# Kubernetes Commands
+## Kubernetes Commands
 
-## Kubectl, The CLI
+### Kubectl, The CLI
 Use Kubectl to interact with Kubernetes on the command line. Kubectl takes commands, and interfaces with the API Gateway.
 
 - `kubectl get`
@@ -99,13 +101,13 @@ kubectl exec -ti $POD_NAME bash
 ```
 
 
-# Local Kubernetes
+## Local Kubernetes
 
-## Setup local Kubernetes
+### Setup local Kubernetes
 Setup the CMD Line Tool: kubectl
 Use Minikube. Setup instructions here: https://kubernetes.io/docs/getting-started-guides/minikube
 
-### Context
+#### Context
 `mubectl` relies on a context. Always make sure you've set it, and that it's right:
 ```
 # Set context
@@ -117,16 +119,18 @@ kubectl config current-context
 
 **You can use `kubectl` for local and production, depending upon the set context. Always check your context before running commands.**
 
-# Kubernetes on Google
+## Kubernetes on Google
 
-# K8s on Aws
+## K8s on Aws
 - needs `kops`, `AWS CLI`
 
 
-# Where do we go from here?
+## Where do we go from here?
 
 - Learn Highly Available (H/A), like etcd.
 - Learn other Kubernetes objects, like LoadBalancer Services, etc.
+
+
 
 
 # Examples
