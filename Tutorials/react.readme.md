@@ -14,9 +14,16 @@ A small class or function which can accept props (parameters), hold a state (it'
 - *Smart components* have their own state, and children.
 - *Dumb components* have no state, and are static. You can pass props to them to update them, but this is the only way they will change.
 
+#### Similarities
+- CamelCase Name, with first letter capitalized.
+- Can be passed Props (passed parameters).
+- Return rendered JSX/HTML.
+- *Returned JSX/HTML MUST be a SINGLE ELEMENT.*
+  - If you have a list of things, make sure it's wrapped in an outer element, like a <div> or <ul>.
+
 #### Smart Components
 - A smart Component is a React class.
-- CamelCase Name, with first letter capitalized.
+
 - render() function is a must.
 - Can have a state, as well as props (passed parameters).
   - State maintains itself (memory + self management).
