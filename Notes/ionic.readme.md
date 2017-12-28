@@ -20,4 +20,4 @@
 
 ## IOS Errors:
 
-Error Code 65: Device is not registered to yor develper account.
+Error Code 65: Device is not registered to your developer account.
