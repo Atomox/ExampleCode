@@ -2,9 +2,10 @@
 
 ## Getting Started
 
+### A Note on Syntax:
+This tutorial will mostly use **ES6 syntax**. We're compiling it down before sending it to the browser. **Babel** + **Webpack**, if you must know. But that's for later. Just know that this won't work out-of-the-box on all browsers.
 
-
-## Componets
+## Components
 
 A small class or function which can accept props (parameters), hold a state (it's own internal variables), and return a rendered chunk of HTML.
 
@@ -14,8 +15,16 @@ A small class or function which can accept props (parameters), hold a state (it'
 - *Dumb components* have no state, and are static. You can pass props to them to update them, but this is the only way they will change.
 
 #### Smart Components
+- A smart Component is a React class.
+- CamelCase Name, with first letter capitalized.
+- render() function is a must.
+- Can have a state, as well as props (passed parameters).
+  - State maintains itself (memory + self management).
+- Better about refreshing child components.
+- It's more expensive.
+
 ```
-class IAmASmartOne extends React.Component {
+class SmartGuy extends React.Component {
   constructor(props) {
     super(props);
     // Constructor, because we're a class.
@@ -37,9 +46,12 @@ class IAmASmartOne extends React.Component {
   }
 }
 ```
-- This can keep track of it's own state, and is smarter about refreshing child components. However, it's more expensive.
+
 
 #### Dumb Components
+- Dumb components have less overhead.
+- Their children might not rerender with a change, so consider if this is a leaf component, or a parent component. If a parent, consider a class.
+
 ```
 const dumbProp = (props) =>  {
   return (
@@ -52,8 +64,6 @@ const dumbProp = (props) =>  {
   );
 }
 ```
-
-- Dumb components have less overhead. However, their children might not rerender with a change, so consider if this is a leaf component, or a parent component. If a parent, consider a class.
 
 ### Call Components
 Call them from another component:
