@@ -24,8 +24,7 @@ A small class or function which can accept props (parameters), hold a state (it'
 
 #### Smart Components
 - A smart Component is a React class.
-
-- render() function is a must.
+- `render()` function is a must, and returns the final JSX/HTML of an element.
 - Can have a state, as well as props (passed parameters).
   - State maintains itself (memory + self management).
 - Better about refreshing child components.
@@ -45,10 +44,9 @@ class SmartGuy extends React.Component {
 
   render() {
     return (
-    { /** Always wrap the return in a SINGLE parent element. */ }
-      <div className="some-div">
+      <div className="some-div"> { /** Always wrap the return in a SINGLE parent element. */ }
         <h1>I'm JSX (HTML)</h1>
-      { /* Javascript goes inside parenthesis. */ }
+        { /* Javascript goes inside parenthesis. */ }
       </div>
     );
   }
