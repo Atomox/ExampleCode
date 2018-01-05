@@ -44,7 +44,7 @@ class SmartGuy extends React.Component {
 
   render() {
     return (
-      <div className="some-div"> { /** Always wrap the return in a SINGLE parent element. */ }
+      <div className="some-div">      { /* Always wrap the return in a SINGLE parent element. */ }
         <h1>I'm JSX (HTML)</h1>
         { /* Javascript goes inside parenthesis. */ }
       </div>
@@ -290,3 +290,214 @@ class SomeSmartComponent extends React.Component {
 Notice we reference the state with `this.state.somevalue`. This is the state object. The Component is called "smart", because it maintains it's own memory of the state. It can update it itself. You could even pass in Props, and initialize the state with the values of those props. But the emphasis is on **you**. You manage the state yourself.
 
 We also set a new state value using the `setState()` function, which provided the most recent state object as a parameter, which you then update to match what you want, and return the new version of. **Don't update the state directly.** This exists to resolve any "merge conflicts." Use this so that if everyone wants to update at once, they have to get in line. Next customer, please.
+
+
+
+# Redux
+
+## Actions
+rateCourse( rating ) {
+  return {type: RATE_COURSE, rating: rating };
+}
+`type` is required, and generally matches the function name. Any other key/value pairs are optional. Just make sure they are valid JSON, so no functions, plz.
+
+## Redux Store
+Stores the data. Does not manipulate it.
+
+- store.dispatch(action)
+- store.subscribe(listener)
+- store.getState()
+- replaceReducer(nextReducer)
+
+## Immutability
+```
+Object.assign(target, ...sources);
+
+// Create a new Object, and merge the following params into it.
+Object.assign({}, state, {role: 'admin'});
+```
+
+** Babel can't transpile. Make sure to use babel-polyfill!**
+
+### ES6 vs ES5 alternatives to Object.assign && Spread operator
+Lodash merge
+Lodash extend
+npm Object-assign
+react-addons-update
+Immutable.js
+
+- Javascript's primitives, like String, int, boolean are already immutable.
+
+#### Dev Module for Immutable Error Checking:
+redux-immutable-state-invariant
+- Throws errors when mutation is attempted.
+
+## Reducers
+```
+function myReducer(state, action) {
+  // return new state based on the action.
+}
+```
+
+```
+### NO!
+function myReducer(state, action) {
+  switch (action.type) {
+    case 'INCREMENT_COUNTER':
+      state.counter++;
+      return state;
+  }
+}
+
+### YES!
+function myReducer(state, action) {
+  switch (action.type) {
+    case 'INCREMENT_COUNTER':
+      return (Object.assign({
+          {},       // Empty object
+          state,    // old state
+          {counter: state.counter + 1}  // Updated state variable WITHOUT editing state.
+        }));
+  }
+}
+```
+
+Reducers should update the value based ONLY on what value came in.
+- Do not make API calls.
+- Do not run math.random() or Date.now().
+- Do not call functions that mutate the data.
+
+When the store is called, **all reducers are called**. If you are not changing anythign in the reducer, **return the unchanged state**.
+
+
+
+## Setup React + Router + Redux
+
+### index.js
+```
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+// Components
+import App from './components/app';
+
+import { BrowserRouter as Router } from 'react-router-dom';
+import configureStore from './store/configureStore';
+import { Provider } from 'react-redux';
+
+const store = configureStore();
+
+ReactDOM.render(
+    <Provider store={store}>
+      <Router>
+        <App />
+      </Router>
+    </Provider>
+  ,
+  document.getElementById('app')
+);
+```
+
+
+### Actions
+For a given action, pass the data.
+```
+export function updateMyThing(value) {
+  return {type: 'updateMyThing', thing: value};
+}
+```
+
+### Reducers
+#### Single reducer
+You'll have many of these. This takes the state and your value to update in the state. You put your value into a new copy of the state, and return that.
+Don't update the old state. Make a new copy. This is for efficiency reasons, among other things.
+```
+const initialState = {
+    foo: 'bar'
+};
+
+export default function thingReducer(state = initialState, action) {
+  switch (action.type) {
+    case 'updateMyThing':
+      let newState = Object.assign({}, state, {
+          ...state,
+          thing: action.thing
+      });
+      return newState;
+    default:
+      return state;
+  }
+}
+```
+#### Root Reducer
+This combines all the reducers. You'll generally have one of these.
+```
+import {combineReducers} from 'redux';
+import thing from './thingReducer'; // Your reducer above.
+
+const rootReducer = combineReducers({
+  thing: thing,
+});
+
+export default rootReducer;
+```
+
+### ConfigStore
+```
+export default function configureStore(initialState) {
+  return createStore(
+    rootReducer,  // Your root reducer, above.
+    initialState,
+
+    // (optional) Add plugins.
+    applyMiddleware(reduxImmutableStateInvariant())
+  );
+}
+```
+
+### App Page Component
+Here are some of the basic elements in your main component, and how React plugs into them.
+```
+App extends React Component {
+constructor(props,context) {
+  super(props, context);
+  this.state = {};
+
+  // Solve the this problem in JS, binding the Component context inside
+  // an action function. These functions are the ones called onClick(), or some other DOM event. They will call your React actions.
+  this.onSomeAction = this.onSomeAction.bind(this);
+}
+
+onSomeAction = () => {
+  // Call your react action here, passing the state on your component.
+  this.props.actions.updateThing(this.state.thing);
+}
+
+render() {}
+
+App.propTypes = {
+  someProp: PropTypes.object.isRequired
+};
+
+// Redux Function & Connect
+function  mapStateToProps(state, ownProps) {
+  return {
+    // Now someProp (in our component) maps from React's state.someProp
+    // Result? this.props.someProp is now available in your component,
+    // with the contents of React's state.someProp.
+    someProp: state.someProp
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    // This takes all your actions, and maps them to this.props.action.*
+    // Then you can call them inside your app via:
+    // this.props.action.updateThing()
+    actions: bindActionCreators(thingActions,dispatch)
+  };
+}
+
+// Connect to react, provide functions for mapping local state to props
+export default connect(mapStateToProps,mapDispatchToProps)(App);
+```
