@@ -97,3 +97,30 @@ Instead, set these in your XCode Project from inside Xcode itself. This seems to
 5. NSIncludesSubdomains: true
 6. NSTemporaryExceptionAllowsInsecureHTTPLoads: true
 7. NSTemporaryExceptionMinimumTLSVersion:TLSv1.1
+
+
+#### Building to xCode Release, t.typeof is not a function
+
+```
+Terminating app due to uncaught exception 'RCTFatalException: Unhandled JS Exception: t.typeof is not a function.
+```
+
+If you're using babel, this error can be caused by the `env` babel preset.
+
+If your .babelrc files looks like this:
+
+```
+{
+  "presets": ["env", "react-native", "stage-0"]
+}
+```
+
+Change it to this:
+```
+{
+  "presets": ["react-native", "stage-0"]
+}
+```
+
+This may resolve the error. Others have discussed this here:
+https://github.com/facebook/react-native/issues/19788
