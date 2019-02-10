@@ -4,6 +4,31 @@
 ## Building
 `react-native run-[ios|android]`
 
+### Navigating the Simulator
+1. Normally, this is not set to auto-reload, so refresh as you make changes. `CMD + R`
+2. `Command + D` opens the developer console. NOTE: Debug mode runs the app via the V8 engine, *not iOS*. It will behave differently. Don't assume that compiling in debug mode means it will work in iOS, _particularly with console.log statements_.
+
+
+### Building to a Device
+Note: for iOS, you are required to have a developer account, and register your devices. You have to pay (generally $99) for a developer account.
+
+This really needs to be done from XCode, although you can try:
+
+```
+react-native run-ios --device
+react-native run-ios --udid XXXX --configuration Release
+```
+
+
+
+### App Transport Security (ATS)
+Since El Capitan and iOS 9, there is a new level of security to declare only those external servers you want your app to talk to. It also expects you to communicate to secure, HTTPS servers exclusively, and has disabled no HTTPS by default.
+
+HTTP can be enabled, but you must be explicit. From Apple:
+
+```App Transport Security (ATS) lets an app add a declaration to its Info.plist file that specifies the domains with which it needs secure communication. ATS prevents accidental disclosure, provides secure default behavior, and is easy to adopt.```
+
+
 ## IOS Errors:
 
 ### Third-Party React Native Errors:
@@ -21,7 +46,8 @@ Xcode 10: third-party: 'config.h' file not found
 
 #### libfishhook.a not found
 
-```error: Build input file cannot be found: '/Users/Atomox/Sites/mta-node/app/node_modules/react-native/Libraries/WebSocket/libfishhook.a'
+```
+error: Build input file cannot be found: '/Users/Atomox/Sites/mta-node/app/node_modules/react-native/Libraries/WebSocket/libfishhook.a'
 ```
 
 For some reason, this file is built, and needs to be moved into react-native's WebSocket directory.
